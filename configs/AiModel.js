@@ -8,7 +8,7 @@ const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro-exp-0801",
+  model: "gemini-1.5-flash",
 });
 
 const generationConfig = {
@@ -29,6 +29,8 @@ const generationConfig = {
     }
   },
 };
+
+
 
 const safetySettings = [
   {

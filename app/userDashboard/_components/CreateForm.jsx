@@ -18,8 +18,21 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 const PROMPT =
-  "on the bases of description, give forms in json format with form title, FieldType, form subheading, form field, form name, placeholder name, and form lable in json format";
-
+    "On the bases of description, give forms in json format with form Heading, form title, form subheading, form name, Field Type, Form field, placeholder name, form label, FormControl, required in json format."
+/**
+ * Renders a dialog component that allows the user to create a new form.
+ * 
+ * The dialog contains a textarea for the user to input a form description, and
+ * buttons to cancel or create the form. When the user clicks the "create" button,
+ * the `onCreateForm` function is called, which sends the user's input to an AI
+ * model to generate a JSON representation of the form, and then saves the form
+ * to the database.
+ * 
+ * The `CreateForm` component uses the `useUser` hook from the `@clerk/nextjs`
+ * library to get the current user's information, and the `useRouter` hook from
+ * the `next/navigation` library to navigate to the form editor page after the
+ * form is created.
+ */
 export default function CreateForm() {
   const [openDialog, setOpenDialog] = useState(false);
   const [userInput, setUserInput] = useState();
@@ -28,33 +41,34 @@ export default function CreateForm() {
   const route = useRouter();
 
   const onCreateForm = async () => {
-
-    setLoading(true)
-    const result = await AiChatSession.sendMessage(
-      "Description:" + userInput + PROMPT);
-      
-    console.log(result.response.text());
-    if (result.response.text()) 
-  {
-    
-        const resp = await db.insert(jsonForms)
+    setLoading(true);
+    const result = await AiChatSession.sendMessage("Description:" + userInput + PROMPT);
+    if (result.response) {
+      let formattedResponse;
+      try {
+        formattedResponse = JSON.parse(result.response.text());
+      } catch (error) {
+        console.error("Failed to parse AI response:", error);
+        setLoading(false);
+        return;
+      }
+  
+      const resp = await db.insert(jsonForms)
         .values({
-          jsonform: result.response.text(),
+          jsonform: JSON.stringify(formattedResponse),
           createdBy: user?.primaryEmailAddress?.emailAddress,
           createdAt: moment().format("DD/MM/yyyy"),
         })
         .returning({ id: jsonForms.id });
   
-      console.log("New Form ID", resp[0].id);
-      if (resp[0].id) 
-      {
+      if (resp[0].id) {
         route.push("/edit-form/" + resp[0].id);
       }
-      setLoading(false);
     }
-  
     setLoading(false);
   };
+  
+
 
   return (
     <div>
@@ -77,8 +91,8 @@ export default function CreateForm() {
                   className="bg-blue-800 hover:bg-blue-800"
                   onClick={() => onCreateForm()}
                 >
-                  {loading ? <Loader2 className="animate-spin" /> : ""}
-                  create
+                  {loading ? <Loader2 className="animate-spin" /> : "create"}
+                  
                 </Button>
               </div>
             </DialogDescription>
