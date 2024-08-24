@@ -85,39 +85,39 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
                 }
               />
             </div>
-            {editedField.fieldType &&
-              (editedField.fieldType.toLowerCase() === "select" ||
-                editedField.fieldType.toLowerCase() === "radio") && (
-                <div className="mb-6">
-                  <label className="text-sm">Options</label>
-                  {(editedField.options || []).map((option, index) => (
-                    <div key={index} className="flex items-center mt-2">
-                      <Input
-                        type="text"
-                        value={option}
-                        onChange={(e) =>
-                          handleOptionChange(index, e.target.value)
-                        }
-                        className="mr-2"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={() => handleDeleteOption(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    size="sm"
-                    onClick={handleAddOption}
-                    className="flex mt-4 items-center justify-center mx-auto bg-gray-200 hover:bg-gray-300 text-black"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Option
-                  </Button>
-                </div>
-              )}
+            {(editedField.fieldType === "select" ||
+              editedField.fieldType === "radio" ||
+              editedField.fieldType === "checkbox") && (
+              <div className="mb-6">
+                <label className="text-sm">Options</label>
+                {(editedField.options || []).map((option, index) => (
+                  <div key={index} className="flex items-center mt-2">
+                    <Input
+                      type="text"
+                      value={option}
+                      onChange={(e) =>
+                        handleOptionChange(index, e.target.value)
+                      }
+                      className="mr-2"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => handleDeleteOption(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  onClick={handleAddOption}
+                  className="flex mt-4 items-center justify-center mx-auto bg-gray-200 hover:bg-gray-300 text-black"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Option
+                </Button>
+              </div>
+            )}
             <div className="flex justify-center">
               <Button
                 size="sm"

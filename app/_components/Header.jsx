@@ -3,11 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import React from "react";
+import { usePathname } from "next/navigation";
+import React, { useEffect } from "react";
 
 function Header() {
   const { user, isSignedIn } = useUser();
-  return (
+  const path=usePathname();
+  useEffect(()=>{
+    console.log(path)
+  }, [])
+  return !path.includes('netform')&&(
     <div className="border-b sticky z-[100] h-14 inset-x-0 top-0 w-full border-gray-200 bg-white/75 backdrop-blur-lg translation-all">
       <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-5">
         <Link href="/" className="z-40 font-bold">

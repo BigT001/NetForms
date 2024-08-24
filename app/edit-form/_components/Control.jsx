@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { themes } from "@/app/_data/Themes";
 import GradientBg from "@/app/_data/GradientBg";
-
 import {
   Select,
   SelectContent,
@@ -10,13 +9,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 
-function Control({ setSelectedTheme, setSelectedGradient }) {
+function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelectedGradient, onAddField }) {
   const [showMore, setShowMore] = useState(false);
 
   const handleGradientClick = (bg) => {
-    console.log("Gradient clicked:", bg.gradient);
     if (typeof setSelectedGradient === 'function') {
       setSelectedGradient(bg.gradient);
     } else {
@@ -24,11 +22,45 @@ function Control({ setSelectedTheme, setSelectedGradient }) {
     }
   };
 
+  const addField = (fieldType) => {
+    let newField = {
+      fieldType: fieldType,
+      formLabel: `New ${fieldType} field`,
+      placeholderName: `Enter ${fieldType}`,
+      required: false,
+    };
+
+    switch (fieldType) {
+      case 'select':
+      case 'radio':
+        newField.options = ['Option 1', 'Option 2', 'Option 3'];
+        break;
+      case 'checkbox':
+        newField.options = ['Checkbox 1', 'Checkbox 2', 'Checkbox 3'];
+        break;
+      case 'date':
+        newField.fieldType = 'date';
+        break;
+      case 'time':
+        newField.fieldType = 'time';
+        break;
+      case 'scale':
+        newField.min = 1;
+        newField.max = 5;
+        newField.step = 1;
+        newField.labels = ['Low', 'High'];
+        break;
+    }
+
+    onAddField(newField);
+  };
+
+
   return (
-    <div>
-      {/* Theme selection control */}
+    <div className="">
       <h2 className="mb-4 font-bold">Themes</h2>
       <Select
+        value={selectedTheme}
         onValueChange={(value) => {
           setSelectedTheme(value);
           document.documentElement.setAttribute("data-theme", value);
@@ -64,7 +96,6 @@ function Control({ setSelectedTheme, setSelectedGradient }) {
         </SelectContent>
       </Select>
 
-      {/* background selection control */}
       <div>
         <h2 className="mt-8 my-1 font-bold">Background</h2>
         <div className="grid grid-cols-3 gap-4">
@@ -73,7 +104,9 @@ function Control({ setSelectedTheme, setSelectedGradient }) {
               (showMore || index < 6) && (
                 <div key={index} className="items-center">
                   <div
-                    className="w-full h-[50px] rounded-lg cursor-pointer hover:border-black hover:border-2"
+                    className={`w-full h-[50px] rounded-lg cursor-pointer hover:border-black hover:border-2 ${
+                      bg.gradient === selectedGradient ? 'border-2 border-black' : ''
+                    }`}
                     style={{ background: bg.gradient || 'white' }}
                     onClick={() => handleGradientClick(bg)}
                   >
@@ -83,12 +116,10 @@ function Control({ setSelectedTheme, setSelectedGradient }) {
                       </span>
                     )}
                   </div>
-                  {/* <span className="flex items-center justify-center text-xs mt-1">{bg.name}</span> */}
                 </div>
               )
           )}
         </div>
-
 
         <div className="flex flex-col items-center mt-4">
           <Button
@@ -111,8 +142,75 @@ function Control({ setSelectedTheme, setSelectedGradient }) {
           )}
         </div>
       </div>
+
+      <div className="mt-8">
+        
+        <h2 className="mb-4 font-bold">Add Field</h2>
+        <Button 
+        size={"sm"}
+        onClick={() => addField('text')} 
+        className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Text
+        </Button>
+
+        <Button
+        size={"sm"} 
+        onClick={() => addField('textarea')} 
+          className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Textarea
+        </Button>
+
+        <Button size={"sm"} onClick={() => addField('select')} 
+          className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Dropdown
+        </Button>
+
+        <Button onClick={() => addField('radio')} 
+          className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Radio
+        </Button>
+
+        <Button onClick={() => addField('checkbox')} 
+          className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Checkbox
+        </Button>
+
+        <Button onClick={() => addField('date')} 
+          className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Date
+        </Button>
+
+        <Button 
+        size={"sm"}
+        onClick={() => addField('time')} 
+          className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Time
+        </Button>
+
+        <Button size={"sm"} onClick={() => addField('scale')} 
+          className="mr-2 mb-2 bg-slate-white border border-black text-black 
+          hover:bg-transparent hover:border-b-2 font-semi-bold">
+          {/* <Plus className="mr-2 h-4 w-4 font-semi-bold" />  */}
+          Scale
+        </Button>
+      </div>
     </div>
   );
 }
 
 export default Control;
+

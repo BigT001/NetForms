@@ -2,6 +2,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import FieldEdit from "./FieldEdit";
 import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Edit, Trash2 } from "lucide-react";
 
 function FormUi({
   jsonForm,
@@ -9,11 +11,17 @@ function FormUi({
   onFieldDelete,
   onFormDetailsUpdate,
   onFieldDuplicate,
+  onFormTitleUpdate,
+  onFormSubheadingUpdate,
   selectedTheme,
+  editable = true,
 }) {
+  
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formValues, setFormValues] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingSubheading, setIsEditingSubheading] = useState(false);
 
   if (!jsonForm || !jsonForm.response || jsonForm.response.length === 0) {
     return <div>No form data available</div>;
@@ -32,6 +40,15 @@ function FormUi({
       []
     );
   };
+  
+
+  const handleDeleteTitle = () => {
+    onFormTitleUpdate("");
+  };
+
+  const handleDeleteSubheading = () => {
+    onFormSubheadingUpdate("");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,22 +59,24 @@ function FormUi({
     const newFormValues = Object.fromEntries(formDataEntries.entries());
     setFormValues(newFormValues);
 
-    const isValid = formData.fields.every(field =>
-      !field.required || newFormValues[getFieldValue(field, "FormField")]
+    const isValid = formData.fields.every(
+      (field) =>
+        !field.required || newFormValues[getFieldValue(field, "FormField")]
     );
 
     if (isValid) {
-      console.log('Form submitted:', newFormValues);
-      // You can send this data to an API or perform any other action here
+      console.log("Form submitted:", newFormValues);
+      // can send this data to an API or perform any other action here
     } else {
-      console.log('Form has validation errors');
+      console.log("Form has validation errors");
     }
     setIsSubmitting(false);
   };
-  
+
   const renderField = (field) => {
     const fieldType = getFieldValue(field, "fieldType") || "text";
-    const fieldName = getFieldValue(field, "FormField") || getFieldValue(field, "fieldName");
+    const fieldName =
+      getFieldValue(field, "FormField") || getFieldValue(field, "fieldName");
     const options = getOptions(field);
     switch (fieldType.toLowerCase()) {
       case "dropdown":
@@ -179,13 +198,71 @@ function FormUi({
     }
   };
 
+ 
+
   return (
-    <div className="w-full mx-auto p-6 rounded-lg shadow-lg" data-theme={selectedTheme}>
-      <h2 className="font-bold text-center text-2xl text-primary mb-4">
-        {formData.formTitle}
-      </h2>
-      <p className="text-center mb-8">{formData.formSubheading}</p>
-  
+    <div
+      className="w-full mx-auto p-6 rounded-lg shadow-lg"
+      data-theme={selectedTheme}
+    >
+      <div className="relative">
+        {editable && isEditingTitle ? (
+          <Input
+            value={formData.formTitle}
+            onChange={(e) => onFormTitleUpdate(e.target.value)}
+            onBlur={() => setIsEditingTitle(false)}
+            className="font-bold text-center text-2xl mb-2"
+            autoFocus
+          />
+        ) : (
+          <h2 className="font-bold text-center text-2xl mb-2">
+            {formData.formTitle}
+          </h2>
+        )}
+        {editable && !isEditingTitle && (
+          <>
+            <Edit
+              className="absolute right-6 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              size={18}
+              onClick={() => setIsEditingTitle(true)}
+            />
+            <Trash2
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              size={18}
+              onClick={handleDeleteTitle}
+            />
+          </>
+        )}
+      </div>
+
+      <div className="relative">
+        {editable && isEditingSubheading ? (
+          <Input
+            value={formData.formSubheading}
+            onChange={(e) => onFormSubheadingUpdate(e.target.value)}
+            onBlur={() => setIsEditingSubheading(false)}
+            className="text-center mb-8"
+            autoFocus
+          />
+        ) : (
+          <p className="text-center mb-8">{formData.formSubheading}</p>
+        )}
+        {editable && !isEditingSubheading && (
+          <>
+            <Edit
+              className="absolute right-6 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              size={18}
+              onClick={() => setIsEditingSubheading(true)}
+            />
+            <Trash2
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              size={18}
+              onClick={handleDeleteSubheading}
+            />
+          </>
+        )}
+      </div>
+
       <form onSubmit={handleSubmit} noValidate className="w-full space-y-4">
         {formData.fields.map((field, index) => (
           <div key={index} className="mb-4 flex items-end">
@@ -198,31 +275,38 @@ function FormUi({
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
               {renderField(field)}
-              {isSubmitted && field.required && !formValues[getFieldValue(field, "FormField")] && (
-                <span className="text-red-500 text-sm mt-1">{/*This field is required*/}</span>
-              )}
+              {isSubmitted &&
+                field.required &&
+                !formValues[getFieldValue(field, "FormField")] && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {/*This field is required*/}
+                  </span>
+                )}
             </div>
 
-            <div className="ml-4">
-              <FieldEdit
-                field={field}
-                onUpdate={(updatedField) => onFieldUpdate(updatedField, index)}
-                onDelete={() => onFieldDelete(index)}
-                onDuplicate={() => onFieldDuplicate(index)}
-              />
-            </div>
+            {editable && (
+              <div className="ml-4">
+                <FieldEdit
+                  field={field}
+                  onUpdate={(updatedField) =>
+                    onFieldUpdate(updatedField, index)
+                  }
+                  onDelete={() => onFieldDelete(index)}
+                  onDuplicate={() => onFieldDuplicate(index)}
+                />
+              </div>
+            )}
           </div>
         ))}
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="btn btn-primary mt-6 px-6 py-2 rounded w-full"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Submitting...' : 'Submit'}
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>
-  );  
+  );
 }
-
 export default FormUi;
