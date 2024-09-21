@@ -16,7 +16,6 @@ function FormUi({
   selectedTheme,
   editable = true,
 }) {
-  
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formValues, setFormValues] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +26,13 @@ function FormUi({
     return <div>No form data available</div>;
   }
 
-  const formData = jsonForm.response[0];
+  const formData = typeof jsonForm.response[0] === 'string' 
+  ? JSON.parse(jsonForm.response[0]) 
+  : jsonForm.response[0];
+
+  if (!formData) {
+    return <div>Invalid form data</div>;
+  }
 
   const getFieldValue = (field, key) => {
     return field[key] || field[key.toLowerCase()] || field[key.toUpperCase()];
@@ -40,7 +45,6 @@ function FormUi({
       []
     );
   };
-  
 
   const handleDeleteTitle = () => {
     onFormTitleUpdate("");
@@ -66,12 +70,12 @@ function FormUi({
 
     if (isValid) {
       console.log("Form submitted:", newFormValues);
-      // can send this data to an API or perform any other action here
     } else {
       console.log("Form has validation errors");
     }
     setIsSubmitting(false);
   };
+
 
   const renderField = (field) => {
     const fieldType = getFieldValue(field, "fieldType") || "text";
@@ -264,40 +268,44 @@ function FormUi({
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="w-full space-y-4">
-        {formData.fields.map((field, index) => (
-          <div key={index} className="mb-4 flex items-end">
-            <div className="flex-grow">
-              <label
-                htmlFor={getFieldValue(field, "FormField")}
-                className="block mb-2 font-medium"
-              >
-                {field.formLabel}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
-              </label>
-              {renderField(field)}
-              {isSubmitted &&
-                field.required &&
-                !formValues[getFieldValue(field, "FormField")] && (
-                  <span className="text-red-500 text-sm mt-1">
-                    {/*This field is required*/}
-                  </span>
-                )}
-            </div>
-
-            {editable && (
-              <div className="ml-4">
-                <FieldEdit
-                  field={field}
-                  onUpdate={(updatedField) =>
-                    onFieldUpdate(updatedField, index)
-                  }
-                  onDelete={() => onFieldDelete(index)}
-                  onDuplicate={() => onFieldDuplicate(index)}
-                />
+      {formData.fields && formData.fields.length > 0 ? (
+  formData.fields.map((field, index) => (
+            <div key={index} className="mb-4 flex items-end">
+              <div className="flex-grow">
+                <label
+                  htmlFor={getFieldValue(field, "FormField")}
+                  className="block mb-2 font-medium"
+                >
+                  {field.formLabel}
+                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                {renderField(field)}
+                {isSubmitted &&
+                  field.required &&
+                  !formValues[getFieldValue(field, "FormField")] && (
+                    <span className="text-red-500 text-sm mt-1">
+                      {/*This field is required*/}
+                    </span>
+                  )}
               </div>
-            )}
-          </div>
-        ))}
+
+              {editable && (
+                <div className="ml-4">
+                  <FieldEdit
+                    field={field}
+                    onUpdate={(updatedField) =>
+                      onFieldUpdate(updatedField, index)
+                    }
+                    onDelete={() => onFieldDelete(index)}
+                    onDuplicate={() => onFieldDuplicate(index)}
+                  />
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No fields available for this form.</p>
+        )}
         <button
           type="submit"
           className="btn btn-primary mt-6 px-6 py-2 rounded w-full"
@@ -309,4 +317,5 @@ function FormUi({
     </div>
   );
 }
+
 export default FormUi;

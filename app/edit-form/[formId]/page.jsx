@@ -84,22 +84,32 @@ function EdithForm({ params }) {
   const onFieldUpdate = (updatedField, index) => {
     setJsonForm(prevForm => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
+      if (!updatedForm.response || !updatedForm.response[0]) {
+        updatedForm.response = [{ fields: [] }];
+      }
+      if (!updatedForm.response[0].fields) {
+        updatedForm.response[0].fields = [];
+      }
       updatedForm.response[0].fields[index] = updatedField;
       debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
       toast.success("Field updated successfully");
       return updatedForm;
     });
   };
-
+  
   const onFormDetailsUpdate = (key, value) => {
     setJsonForm(prevForm => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
+      if (!updatedForm.response || !updatedForm.response[0]) {
+        updatedForm.response = [{}];
+      }
       updatedForm.response[0][key] = value;
       debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
       toast.success("Form details updated successfully");
       return updatedForm;
     });
   };
+  
 
   const onFieldDelete = async (index) => {
     setJsonForm(prevForm => {
@@ -123,16 +133,27 @@ function EdithForm({ params }) {
     });
   };
 
+
   const onFieldAdd = (newField) => {
     setJsonForm(prevForm => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
+      if (!updatedForm.response) {
+        updatedForm.response = [];
+      }
+      if (!updatedForm.response[0] || typeof updatedForm.response[0] === 'string') {
+        updatedForm.response[0] = {};
+      }
+      if (!updatedForm.response[0].fields) {
+        updatedForm.response[0].fields = [];
+      }
       updatedForm.response[0].fields.push(newField);
       debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
       toast.success("New field added successfully");
       return updatedForm;
     });
   };
-
+  
+  
 
   const onFormTitleUpdate = (newTitle) => {
     setJsonForm(prevForm => {

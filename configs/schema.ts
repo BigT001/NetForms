@@ -16,7 +16,6 @@ export const formSubmissions = pgTable('formSubmissions', {
   jsonResponse:text('jsonResponse').notNull(),
   createdBy: varchar("createdBy", { length: 255 }).default('anonymus'),
   createdAt: varchar("createdAt", { length: 255 }).notNull(),
-  formId: uuid('form_id').notNull(),
   submittedAt: timestamp('submitted_at').defaultNow(),
   data: jsonb('data').notNull()
 });

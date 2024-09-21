@@ -17,8 +17,7 @@ import moment from "moment";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-const PROMPT =
-    "On the bases of description, give forms in json format with form Heading, form title, form subheading, form name, Field Type, Form field, placeholder name, form label, FormControl, required in json format."
+const PROMPT = "On the basis of description, give forms in json format with form Heading, form title, form subheading, form name, and a 'fields' array containing objects with Field Type, Form field, placeholder name, form label, FormControl, required in json format."
 /**
  * Renders a dialog component that allows the user to create a new form.
  * 
@@ -47,12 +46,16 @@ export default function CreateForm() {
       let formattedResponse;
       try {
         formattedResponse = JSON.parse(result.response.text());
+        // Ensure the response has the correct structure
+        if (!formattedResponse.response) {
+          formattedResponse = { response: [formattedResponse] };
+        }
       } catch (error) {
         console.error("Failed to parse AI response:", error);
         setLoading(false);
         return;
       }
-  
+      
       const resp = await db.insert(jsonForms)
         .values({
           jsonform: JSON.stringify(formattedResponse),
@@ -60,7 +63,7 @@ export default function CreateForm() {
           createdAt: moment().format("DD/MM/yyyy"),
         })
         .returning({ id: jsonForms.id });
-  
+      
       if (resp[0].id) {
         route.push("/edit-form/" + resp[0].id);
       }
