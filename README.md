@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AI-Powered Form Generator
 
-## Getting Started
+This project is an advanced AI-powered form generator that creates customized forms based on user descriptions. It features a sleek gradient background, theme support, and a comprehensive dashboard for form management.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- AI-powered form structure generation
+- User-friendly interface with gradient background and theme support
+- Dashboard for easy form management
+- Real-time form editing and preview
+- Integration with Clerk for user authentication
+- PostgreSQL database for robust data storage
+- JSX for dynamic component rendering
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Used
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js
+- React
+- javascript
+- Tailwind CSS
+- CSS
+- Daisy UI
+- Google Generative AI (Gemini 1.5 Flash)
+- Clerk (for authentication)
+- PostgreSQL (with Drizzle ORM)
+- Moment.js for date handling
+- React Hot Toast for notifications
+- Custom theming system
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. Log in to access the dashboard
+2. Click on the "Create Form" button to open the form creation dialog
+3. Enter a description of the form you want to create
+4. Click "Create" to generate the form structure using AI
+5. The generated form will be saved to the database
+6. Use the dashboard to view, edit, or delete your forms
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- `components/`: Contains UI components like Dialog, Button, and Textarea
+- `configs/`: Configuration files including database setup and AI model configuration
+- `pages/`: Next.js pages for routing, including the dashboard
+- `styles/`: Theme configurations and global styles
+- `lib/`: Database models and utility functions
+- `CreateForm.js`: Main component for form creation
+- `EditForm.js`: Component for editing existing forms
 
-## Deploy on Vercel
+## AI Model Configuration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The AI model (Gemini 1.5 Flash) is configured with the following parameters:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```javascript
+const generationConfig = {
+temperature: 0.7,
+topP: 1,
+topK: 1,
+maxOutputTokens: 2048,
+};
+
+
