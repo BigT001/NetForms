@@ -26,13 +26,22 @@ function FormUi({
     return <div>No form data available</div>;
   }
 
-  const formData = typeof jsonForm.response[0] === 'string' 
-  ? JSON.parse(jsonForm.response[0]) 
-  : jsonForm.response[0];
+  const formData =
+    typeof jsonForm.response[0] === "string"
+      ? (() => {
+          try {
+            return JSON.parse(jsonForm.response[0]);
+          } catch (error) {
+            console.error("Invalid JSON:", error);
+            return null;
+          }
+        })()
+      : jsonForm.response[0];
 
-  if (!formData) {
-    return <div>Invalid form data</div>;
+  if (!formData || !Array.isArray(formData.fields)) {
+    return <div>Invalid form data structure</div>;
   }
+  console.log("Parsed form data:", formData);
 
   const getFieldValue = (field, key) => {
     return field[key] || field[key.toLowerCase()] || field[key.toUpperCase()];
@@ -76,7 +85,6 @@ function FormUi({
     setIsSubmitting(false);
   };
 
-
   const renderField = (field) => {
     const fieldType = getFieldValue(field, "fieldType") || "text";
     const fieldName =
@@ -92,10 +100,12 @@ function FormUi({
             className="w-full p-2 border rounded bg-transparent"
             required={field.required}
           >
-            <option value="">{field.placeholderName}</option>
             {options.map((option, index) => (
-              <option key={index} value={option}>
-                {option}
+              <option
+                key={index}
+                value={typeof option === "object" ? option.value : option}
+              >
+                {typeof option === "object" ? option.label : option}
               </option>
             ))}
           </select>
@@ -141,18 +151,29 @@ function FormUi({
           <RadioGroup>
             {options.map((option, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`${fieldName}-${option}`} />
-                <label htmlFor={`${fieldName}-${option}`}>{option}</label>
+                <RadioGroupItem
+                  value={typeof option === "object" ? option.value : option}
+                  id={`${fieldName}-${
+                    typeof option === "object" ? option.value : option
+                  }`}
+                />
+                <label
+                  htmlFor={`${fieldName}-${
+                    typeof option === "object" ? option.value : option
+                  }`}
+                >
+                  {typeof option === "object" ? option.label : option}
+                </label>
               </div>
             ))}
           </RadioGroup>
         );
-      case "checkbox":
-        if (
-          fieldName === "agreeTerms" ||
-          !Array.isArray(options) ||
-          options.length === 0
-        ) {
+        case "checkbox":
+          if (
+            fieldName === "agreeTerms" ||
+            !Array.isArray(options) ||
+            options.length === 0
+          ) {
           return (
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -169,7 +190,9 @@ function FormUi({
               {options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <Checkbox id={`${fieldName}-${index}`} />
-                  <label htmlFor={`${fieldName}-${index}`}>{option}</label>
+                  <label htmlFor={`${fieldName}-${index}`}>
+                    {typeof option === "object" ? option.label : option}
+                  </label>
                 </div>
               ))}
             </div>
@@ -201,8 +224,6 @@ function FormUi({
         return null;
     }
   };
-
- 
 
   return (
     <div
@@ -268,8 +289,8 @@ function FormUi({
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="w-full space-y-4">
-      {formData.fields && formData.fields.length > 0 ? (
-  formData.fields.map((field, index) => (
+        {formData.fields && formData.fields.length > 0 ? (
+          formData.fields.map((field, index) => (
             <div key={index} className="mb-4 flex items-end">
               <div className="flex-grow">
                 <label
@@ -277,7 +298,9 @@ function FormUi({
                   className="block mb-2 font-medium"
                 >
                   {field.formLabel}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                  {field.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
                 </label>
                 {renderField(field)}
                 {isSubmitted &&
