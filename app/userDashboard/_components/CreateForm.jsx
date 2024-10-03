@@ -21,7 +21,7 @@ import { generateFormStructure } from "@/configs/AiModel";
 
 const PROMPT = "On the basis of description, give forms in json format with form Heading, form title, form subheading, form name, and a 'fields' array containing objects with Field Type, Form field, placeholder name, form label, FormControl, required in json format."
 
-export default function CreateForm() {
+export default function CreateForm({ setIsOpen }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,22 +31,17 @@ export default function CreateForm() {
   const onCreateForm = async () => {
     console.log("Create form button clicked");
     setLoading(true);
-  
     if (!userInput.trim()) {
       toast.error("Please provide a description for the form.");
       setLoading(false);
       return;
     }
-  
     try {
       const formData = await generateFormStructure(userInput);
       console.log("Structured form data:", formData);
-    
-    
       if (!formData || typeof formData !== 'object') {
         throw new Error('Invalid form data received from AI');
       }
-  
 
       const finalResponse = {
         response: [formData],
@@ -80,13 +75,19 @@ export default function CreateForm() {
     } catch (error) {
       console.error("Error creating form:", error);
       toast.error("Unable to generate form structure. Please try rephrasing your description.");
+    } finally {
       setLoading(false);
     }
   };
 
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+    if (setIsOpen) setIsOpen(false);
+  };
+
   return (
     <div>
-      <Button onClick={() => setOpenDialog(true)}>+ Create Form</Button>
+      <Button onClick={handleOpenDialog} className="w-44">+ Create Form</Button>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent>
           <div>

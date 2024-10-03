@@ -1,9 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import CreateForm from "./CreateForm";
 
 function SideNav({ isOpen, setIsOpen }) {
   const menuList = [
@@ -14,6 +15,16 @@ function SideNav({ isOpen, setIsOpen }) {
   ];
 
   const path = usePathname();
+  const router = useRouter();
+
+  const handleNavigation = (menuPath) => {
+    router.push(menuPath);
+    setIsOpen(false);
+  };
+
+  const handleCreateForm = () => {
+    setIsOpen(false);
+  };
 
   return (
     <div
@@ -28,8 +39,8 @@ function SideNav({ isOpen, setIsOpen }) {
               <li key={menu.id}>
                 {index === 0 && (
                   <div className="flex items-center justify-between mb-2 lg:hidden">
-                    <a
-                      href={menu.path}
+                    <button
+                      onClick={() => handleNavigation(menu.path)}
                       className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                         path === menu.path
                           ? "bg-primary text-white"
@@ -38,16 +49,20 @@ function SideNav({ isOpen, setIsOpen }) {
                     >
                       <span className="text-xl">{menu.icon}</span>
                       <span className="font-medium">{menu.name}</span>
-                    </a>
-                    <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsOpen(false)}
+                    >
                       <X size={20} />
                     </Button>
                   </div>
                 )}
                 {(index !== 0 || !isOpen) && (
-                  <a
-                    href={menu.path}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                  <button
+                    onClick={() => handleNavigation(menu.path)}
+                    className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                       path === menu.path
                         ? "bg-primary text-white"
                         : "text-gray-700 hover:scale-105"
@@ -55,16 +70,23 @@ function SideNav({ isOpen, setIsOpen }) {
                   >
                     <span className="text-xl">{menu.icon}</span>
                     <span className="font-medium">{menu.name}</span>
-                  </a>
+                  </button>
                 )}
               </li>
             ))}
           </ul>
         </nav>
-        <div className="p-4 border-t">
-          <Button className="w-full mb-4">+ Create Form</Button>
+         <div className="p-4 border-t">
+        <div className="w-full mb-4 text-center">
+          <CreateForm setIsOpen={setIsOpen} />
+        </div>
+
           <div className="mb-2">
-            <progress className="progress progress-primary w-full" value="60" max="100"></progress>
+            <progress
+              className="progress progress-primary w-full"
+              value="60"
+              max="100"
+            ></progress>
           </div>
           <p className="text-sm text-gray-600 mb-2">
             <strong>3</strong> out of <strong>5</strong> forms created
