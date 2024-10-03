@@ -4,20 +4,21 @@ import FieldEdit from "./FieldEdit";
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Edit, Trash2 } from "lucide-react";
+import { db } from "@/configs";
+import { formSubmissions } from "@/configs/schema";
+import { sql } from 'drizzle-orm';
+
 
 function FormUi({
   jsonForm,
   onFieldUpdate,
   onFieldDelete,
-  onFormDetailsUpdate,
   onFieldDuplicate,
   onFormTitleUpdate,
   onFormSubheadingUpdate,
   selectedTheme,
   editable = true,
 }) {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [formValues, setFormValues] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingSubheading, setIsEditingSubheading] = useState(false);
@@ -26,25 +27,20 @@ function FormUi({
     return <div>No form data available</div>;
   }
 
-  const formData =
-    typeof jsonForm.response[0] === "string"
-      ? (() => {
-          try {
-            return JSON.parse(jsonForm.response[0]);
-          } catch (error) {
-            console.error("Invalid JSON:", error);
-            return null;
-          }
-        })()
-      : jsonForm.response[0];
+  const formData = jsonForm.response[0];
 
   if (!formData || !Array.isArray(formData.fields)) {
     return <div>Invalid form data structure</div>;
   }
-  console.log("Parsed form data:", formData);
 
   const getFieldValue = (field, key) => {
-    return field[key] || field[key.toLowerCase()] || field[key.toUpperCase()];
+    return (
+      field[key] ||
+      field[key.toLowerCase()] ||
+      field[key.toUpperCase()] ||
+      field.name ||
+      field.id
+    );
   };
 
   const getOptions = (field) => {
@@ -55,54 +51,64 @@ function FormUi({
     );
   };
 
-  const handleDeleteTitle = () => {
-    onFormTitleUpdate("");
-  };
-
-  const handleDeleteSubheading = () => {
-    onFormSubheadingUpdate("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setIsSubmitted(true);
-    const formElement = e.target;
-    const formDataEntries = new FormData(formElement);
-    const newFormValues = Object.fromEntries(formDataEntries.entries());
-    setFormValues(newFormValues);
-
-    const isValid = formData.fields.every(
-      (field) =>
-        !field.required || newFormValues[getFieldValue(field, "FormField")]
-    );
-
-    if (isValid) {
-      console.log("Form submitted:", newFormValues);
-    } else {
-      console.log("Form has validation errors");
+    const formData = new FormData(e.target);
+    
+    console.log("Raw FormData:", Array.from(formData.entries()));
+  
+    const formValues = Object.fromEntries(formData.entries());
+    console.log("Captured form values:", formValues);
+  
+    try {
+      const submissionData = {
+        jsonResponse: JSON.stringify(formValues),
+        createdBy: 'anonymous',
+        createdAt: new Date().toISOString(),
+        data: sql`${JSON.stringify(formValues)}::jsonb`,
+      };
+  
+      console.log("Submission data:", submissionData);
+  
+      const result = await db.insert(formSubmissions).values(submissionData);
+      console.log("Database insertion result:", result);
+  
+      const insertedData = await db.select().from(formSubmissions).limit(1);
+      console.log("Inserted data:", insertedData);
+  
+      alert("Form submitted successfully!");
+      e.target.reset();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Error submitting form. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
+  
 
   const renderField = (field) => {
     const fieldType = getFieldValue(field, "fieldType") || "text";
-    const fieldName =
-      getFieldValue(field, "FormField") || getFieldValue(field, "fieldName");
+    const fieldName = getFieldValue(field, "FormField") || getFieldValue(field, "fieldName");
     const options = getOptions(field);
+  
+    console.log("Rendering field:", { field, fieldName, fieldType, options });
+  
+    const commonProps = {
+      id: fieldName,
+      name: fieldName,
+      className: "w-full p-2 border rounded bg-transparent",
+    };
+  
     switch (fieldType.toLowerCase()) {
       case "dropdown":
       case "select":
         return (
-          <select
-            id={fieldName}
-            name={fieldName}
-            className="w-full p-2 border rounded bg-transparent"
-            required={field.required}
-          >
-            {options.map((option, index) => (
-              <option
-                key={index}
+          <select {...commonProps}>
+            {options && options.map((option, index) => (
+              <option 
+                key={index} 
                 value={typeof option === "object" ? option.value : option}
               >
                 {typeof option === "object" ? option.label : option}
@@ -111,16 +117,7 @@ function FormUi({
           </select>
         );
       case "time":
-        return (
-          <input
-            type="time"
-            id={fieldName}
-            name={fieldName}
-            placeholder={field.placeholderName}
-            className="w-full p-2 border rounded bg-transparent"
-            required={field.required}
-          />
-        );
+        return <input type="time" {...commonProps} />;
       case "text":
       case "email":
       case "number":
@@ -129,57 +126,42 @@ function FormUi({
         return (
           <input
             type={fieldType.toLowerCase()}
-            id={fieldName}
-            name={fieldName}
+            {...commonProps}
             placeholder={field.placeholderName}
-            className="w-full p-2 border rounded bg-transparent"
-            required={field.required}
           />
         );
       case "textarea":
         return (
           <textarea
-            id={fieldName}
-            name={fieldName}
+            {...commonProps}
             placeholder={field.placeholderName}
-            className="w-full p-2 border rounded bg-transparent"
-            required={field.required}
           ></textarea>
         );
       case "radio":
         return (
-          <RadioGroup>
-            {options.map((option, index) => (
+          <RadioGroup name={fieldName}>
+            {options && options.map((option, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem
+                <RadioGroupItem 
                   value={typeof option === "object" ? option.value : option}
-                  id={`${fieldName}-${
-                    typeof option === "object" ? option.value : option
-                  }`}
+                  name={fieldName}
+                  id={`${fieldName}-${index}`} 
                 />
-                <label
-                  htmlFor={`${fieldName}-${
-                    typeof option === "object" ? option.value : option
-                  }`}
-                >
+                <label htmlFor={`${fieldName}-${index}`}>
                   {typeof option === "object" ? option.label : option}
                 </label>
               </div>
             ))}
           </RadioGroup>
         );
-        case "checkbox":
-          if (
-            fieldName === "agreeTerms" ||
-            !Array.isArray(options) ||
-            options.length === 0
-          ) {
+      case "checkbox":
+        if (!Array.isArray(options) || options.length === 0) {
           return (
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id={fieldName}
+              <Checkbox 
+                id={fieldName} 
                 name={fieldName}
-                required={field.required}
+                value="true"
               />
               <label htmlFor={fieldName}>{field.formLabel}</label>
             </div>
@@ -189,7 +171,11 @@ function FormUi({
             <div className="space-y-2">
               {options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <Checkbox id={`${fieldName}-${index}`} />
+                  <Checkbox 
+                    id={`${fieldName}-${index}`} 
+                    name={fieldName} 
+                    value={typeof option === "object" ? option.value : option}
+                  />
                   <label htmlFor={`${fieldName}-${index}`}>
                     {typeof option === "object" ? option.label : option}
                   </label>
@@ -203,13 +189,10 @@ function FormUi({
           <div>
             <input
               type="range"
-              id={fieldName}
-              name={fieldName}
+              {...commonProps}
               min={field.min}
               max={field.max}
               step={field.step}
-              className="w-full"
-              required={field.required}
             />
             <div className="flex justify-between mt-2">
               {field.labels.map((label, index) => (
@@ -223,6 +206,15 @@ function FormUi({
       default:
         return null;
     }
+  };
+  
+
+  const handleDeleteTitle = () => {
+    onFormTitleUpdate("");
+  };
+
+  const handleDeleteSubheading = () => {
+    onFormSubheadingUpdate("");
   };
 
   return (
@@ -288,7 +280,7 @@ function FormUi({
         )}
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="w-full space-y-4">
+      <form onSubmit={handleSubmit} className="w-full space-y-4">
         {formData.fields && formData.fields.length > 0 ? (
           formData.fields.map((field, index) => (
             <div key={index} className="mb-4 flex items-end">
@@ -303,13 +295,6 @@ function FormUi({
                   )}
                 </label>
                 {renderField(field)}
-                {isSubmitted &&
-                  field.required &&
-                  !formValues[getFieldValue(field, "FormField")] && (
-                    <span className="text-red-500 text-sm mt-1">
-                      {/*This field is required*/}
-                    </span>
-                  )}
               </div>
 
               {editable && (

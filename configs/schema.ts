@@ -1,4 +1,4 @@
-const { pgTable, serial, text, varchar, timestamp, jsonb, uuid } = require("drizzle-orm/pg-core");
+import { pgTable, serial, text, varchar, timestamp, jsonb, uuid } from "drizzle-orm/pg-core";
 
 export const jsonForms = pgTable("jsonForms", {
   id: serial("id").primaryKey(),
@@ -13,7 +13,7 @@ export const jsonForms = pgTable("jsonForms", {
 
 export const formSubmissions = pgTable('formSubmissions', {
   id: serial('id').primaryKey(),
-  jsonResponse:text('jsonResponse').notNull(),
+  jsonResponse: text("jsonResponse").notNull(),
   createdBy: varchar("createdBy", { length: 255 }).default('anonymus'),
   createdAt: varchar("createdAt", { length: 255 }).notNull(),
   submittedAt: timestamp('submitted_at').defaultNow(),

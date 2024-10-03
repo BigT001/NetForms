@@ -1,21 +1,27 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import SideNav from "./_components/SideNav";
 import { SignedIn } from "@clerk/nextjs";
 
 function DashboardLayout({ children }) {
-  return (
-    <div>
-      <div className="md:w-64 fixed">
-        <SideNav />
-      </div>
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
-      <div className="md:ml-64">
-        <SignedIn>{children}</SignedIn>
+  const toggleSideNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
+  return (
+    <div className="relative">
+      <div className="flex">
+        <SideNav isOpen={isNavOpen} setIsOpen={setIsNavOpen} />
+
+        <div className="flex-1 md:ml-64">
+          <SignedIn>{children}</SignedIn>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default DashboardLayout;

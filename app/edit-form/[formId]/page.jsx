@@ -6,13 +6,16 @@ import { useUser } from "@clerk/nextjs";
 import { eq, and } from "drizzle-orm";
 import { ArrowLeft, Share2, SquareArrowDownRight, SquareArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import FormUi from "../_components/FormUi";
 import debounce from 'lodash/debounce';
 import { toast } from "sonner";
 import Control from "../_components/Control";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { RWebShare } from "react-web-share";
+
+
 
 function EdithForm({ params }) {
   const { user } = useUser();
@@ -152,6 +155,31 @@ function EdithForm({ params }) {
       return updatedForm;
     });
   };
+
+  const extractStringValue = (obj) => {
+    if (typeof obj === "string") return obj;
+    if (obj && typeof obj === "object") {
+      if ("value" in obj) return obj.value;
+      if ("label" in obj) return obj.label;
+    }
+    return "";
+  };
+
+  
+  
+  const { formTitle, formSubheading, createdAt } = useMemo(() => {
+    if (!record) return { formTitle: "Untitled Form", formSubheading: "", createdAt: "Unknown date" };
+  
+    const formData = record.jsonform ? JSON.parse(record.jsonform) : null;
+    return {
+      formTitle: extractStringValue(formData?.response[0]?.formTitle) || "Untitled Form",
+      formSubheading: extractStringValue(formData?.response[0]?.formSubheading) || "",
+      // createdAt: record.createdAt
+      //   ? moment(record.createdAt, "DD/MM/YYYY").format("MMM D, YYYY")
+      //   : "Unknown date"
+    };
+  }, [record]);
+  
   
   
 
@@ -213,11 +241,22 @@ function EdithForm({ params }) {
         </Button>
         </Link>
 
-        <Button className="flex gap-2 bg-slate-white border border-black text-black 
-          hover:bg-transparent hover:border-b-2 font-semi-bold"> 
-          <Share2 className="h-5 w-5"/>
-          Share
-        </Button>
+        <RWebShare
+              data={{
+                text: `${formSubheading}, Build your forms in seconds with NetForms`,
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}netforms/${record?.id}`,
+                title: formTitle,
+              }}
+              onClick={() => console.log("shared successfully!")}
+            >
+              <Button
+                size="sm"
+                className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+              >
+                <Share2 className="h-4 w-4" />
+                Share
+              </Button>
+            </RWebShare>
       </div>
       </div>
 

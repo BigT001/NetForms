@@ -57,7 +57,7 @@ function FormCard({ form, user, onDelete }) {
 
   return (
     <>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden relative w-full h-full flex flex-col">
+      <div className="bg-white shadow-md rounded-lg overflow-hidden relative w-full h-full flex flex-col z-[1]">
         <div className="absolute top-2 right-2">
           <Trash2
             className="h-5 w-5 text-primary cursor-pointer hover:text-red-700"
