@@ -38,22 +38,29 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
     }));
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = (e) => {
+    e.preventDefault();
     onUpdate(editedField);
     setIsEditing(false);
   };
 
   const handleOutsideClick = (e) => {
+    e.preventDefault();
     if (e.target === e.currentTarget) {
       setIsEditing(false);
       setIsDeleteConfirmOpen(false);
     }
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = (e) => {
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
     onDelete();
     setIsDeleteConfirmOpen(false);
   };
+  
+  
 
   return (
     <div className="flex">
@@ -140,16 +147,18 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
       <Button
         size="sm"
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           setIsEditing(true);
         }}
         className="ml-2 bg-gray-200 hover:bg-gray-300 text-black"
       >
-        <Edit className="text-black h-5 w-5" />
+         <Edit className="text-black h-5 w-5" />
       </Button>
       <Button
         size="sm"
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           onDuplicate();
         }}
@@ -160,6 +169,7 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
       <Button
         size="sm"
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           setIsDeleteConfirmOpen(true);
         }}

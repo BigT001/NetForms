@@ -7,13 +7,18 @@ import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import SideNav from "../userDashboard/_components/SideNav";
-import { Menu } from "lucide-react";
+import { Menu, Settings } from "lucide-react";
+import { useControlVisibility } from "@/contexts/ControlVisibilityContext";
+
 
 function Header() {
+  const { toggleControl } = useControlVisibility();
+  const path = usePathname();
   const { user, isSignedIn } = useUser();
   const { signOut, openUserProfile } = useClerk();
-  const path = usePathname();
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+  
+  
 
   useEffect(() => {
     console.log(path);
@@ -61,6 +66,9 @@ function Header() {
   };
 
   const isUserDashboardPage = path === '/userDashboard';
+  const isHomePage = path === '/';
+  const isEditFormPage = path.startsWith('/edithForm/');
+  
 
   return (
     <>
@@ -72,42 +80,56 @@ function Header() {
           </Link>
 
           {isSignedIn ? (
-            <div className="flex items-center gap-5">
-              {isUserDashboardPage ? (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleSideNav}
-                  className="lg:hidden"
-                >
-                  <Menu size={24} />
-                </Button>
-              ) : (
-                <Link href="/userDashboard">
-                  <Button variant="outline">Dashboard</Button>
-                </Link>
+            <div className="flex items-center gap-2">
+              {!isUserDashboardPage && !isEditFormPage && (
+                <div className={`${isHomePage ? 'block' : 'hidden'} sm:block`}>
+                  <Link href="/userDashboard">
+                    <Button variant="outline">Dashboard</Button>
+                  </Link>
+                </div>
               )}
-              <div className="dropdown dropdown-end">
-                <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-                  <AvatarComponent />
-                </label>
-                <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-white rounded-lg w-64 border border-gray-200">
-                  <li className="text-sm text-gray-600 border-b border-gray-200">
-                    <div className="flex items-center gap-2 p-2">
-                      <AvatarComponent />
-                      <div className="text-xs text-gray-500">{userEmail}</div>
-                    </div>
-                  </li>
-                  <li>
-                    <a onClick={handleManageAccount} className="p-3 hover:bg-gray-100 transition-colors mt-4 text-md">
-                      Manage account
-                    </a>
-                  </li>
-                  <li><a onClick={handleSignOut} className="p-3 hover:bg-gray-100 transition-colors text-red-600">Sign out</a></li>
-                </ul>
+              <div className="flex items-center gap-2">
+                {isUserDashboardPage && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleSideNav}
+                    className="lg:hidden"
+                  >
+                    <Menu size={24} />
+                  </Button>
+                )}
+                {isEditFormPage && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="sm:hidden"
+                  >
+                    <Settings size={24} />
+                  </Button>
+                )}
+                <div className="dropdown dropdown-end">
+                  <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+                    <AvatarComponent />
+                  </label>
+                  <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-white rounded-lg w-64 border border-gray-200">
+                    <li className="text-sm text-gray-600 border-b border-gray-200">
+                      <div className="flex items-center gap-2 p-2">
+                        <AvatarComponent />
+                        <div className="text-xs text-gray-500">{userEmail}</div>
+                      </div>
+                    </li>
+                    <li>
+                      <a onClick={handleManageAccount} className="p-3 hover:bg-gray-100 transition-colors mt-4 text-md">
+                        Manage account
+                      </a>
+                    </li>
+                    <li><a onClick={handleSignOut} className="p-3 hover:bg-gray-100 transition-colors text-red-600">Sign out</a></li>
+                  </ul>
+                </div>
               </div>
             </div>
-           ) : (
+          ) : (
             <SignInButton>
               <Button>Get Started</Button>
             </SignInButton>
@@ -115,15 +137,13 @@ function Header() {
         </div>
       </div>
 
-      {/* Side Navigation */}
       {isUserDashboardPage && (
         <SideNav isOpen={isSideNavOpen} setIsOpen={setIsSideNavOpen} />
       )}
 
-      {/* Overlay */}
       {isSideNavOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" 
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={toggleSideNav}
         ></div>
       )}

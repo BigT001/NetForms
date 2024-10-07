@@ -11,11 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 
-function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelectedGradient, onAddField }) {
+function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelectedGradient, onAddField, isOpen, onClose }) {
   const [showMore, setShowMore] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleGradientClick = (bg) => {
     if (typeof setSelectedGradient === 'function') {
@@ -24,7 +23,6 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
       console.error('setSelectedGradient is not a function');
     }
   };
-
   const addField = (fieldType) => {
     let newField = {
       fieldType: fieldType,
@@ -59,18 +57,21 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
   };
 
   return (
-    <>
-      <Button
-        className="fixed top-4 left-4 z-[1001] md:hidden"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X size={24} /> : <Plus size={24} />}
-      </Button>
-      <div
-        className={`fixed inset-y-0 left-0 z-[1000] w-64 bg-white shadow-md border transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:w-full`}
-      >
+    <div
+      className={`fixed inset-y-0 left-0 z-[1000] w-64 bg-white shadow-md border transform ${
+        isOpen ? "translate-x-0" : "-translate-x-full "
+      } transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:w-full`}
+    >
+      <div className="p-4 h-full overflow-y-auto">
+        <Button
+          className="absolute top-2 right-2 sm:hidden"
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+        >
+          <X size={24} />
+        </Button>
+
         <div className="p-4 h-full overflow-y-auto">
           <h2 className="mb-4 font-bold">Themes</h2>
           <Select
@@ -172,7 +173,7 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
           </div>
         </div>
       </div>
-    </>
+ </div>
   );
 }
 

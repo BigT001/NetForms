@@ -87,30 +87,35 @@ export default function CreateForm({ setIsOpen }) {
 
   return (
     <div>
-      <Button onClick={handleOpenDialog} className="w-44">+ Create Form</Button>
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent>
-          <div>
+      <Button onClick={handleOpenDialog} className="w-44">
+        + Create Form
+      </Button>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog} className="">
+        <DialogContent className="sm:max-w-[425px] max-w-[90%] w-full">
+          <DialogHeader>
             <DialogTitle>Create new form</DialogTitle>
-            <DialogDescription>
-              <Textarea
-                className="my-2"
-                onChange={(event) => setUserInput(event.target.value)}
-                placeholder="Write your form description"
-                value={userInput}
-              />
-              <div className="flex gap-2 justify-end">
-                <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                <Button
-                  disabled={loading}
-                  className="bg-blue-800 hover:bg-blue-800"
-                  onClick={onCreateForm}
-                >
-                  {loading ? <Loader2 className="animate-spin" /> : "Create"}
-                </Button>
-              </div>
-            </DialogDescription>
-          </div>
+          </DialogHeader>
+          <DialogDescription>
+            <Textarea
+              className="my-2 w-full"
+              onChange={(event) => setUserInput(event.target.value)}
+              placeholder="Write your form description"
+              value={userInput}
+            />
+            <div className="flex gap-2 justify-end mt-4">
+              <Button onClick={() => setOpenDialog(false)} variant="outline">
+                Cancel
+              </Button>
+              <Button
+                disabled={loading}
+                className="bg-blue-800 hover:bg-blue-700"
+                onClick={onCreateForm}
+              >
+                {loading ? <Loader2 className="animate-spin mr-2" /> : null}
+                {loading ? "Creating..." : "Create"}
+              </Button>
+            </div>
+          </DialogDescription>
         </DialogContent>
       </Dialog>
     </div>

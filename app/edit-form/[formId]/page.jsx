@@ -4,7 +4,7 @@ import { db } from "@/configs";
 import { jsonForms } from "@/configs/schema";
 import { useUser } from "@clerk/nextjs";
 import { eq, and } from "drizzle-orm";
-import { ArrowLeft, Share2, SquareArrowDownRight, SquareArrowUpRight } from "lucide-react";
+import { ArrowLeft, Share2, SquareArrowUpRight, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import FormUi from "../_components/FormUi";
@@ -15,8 +15,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { RWebShare } from "react-web-share";
 
-
-
 function EdithForm({ params }) {
   const { user } = useUser();
   const [jsonform, setJsonForm] = useState(null);
@@ -24,6 +22,9 @@ function EdithForm({ params }) {
   const [record, setRecord] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState('light');
   const [selectedGradient, setSelectedGradient] = useState('');
+  const [isControlVisible, setIsControlVisible] = useState(false);
+    const [isControlCollapsed, setIsControlCollapsed] = useState(false);
+
 
   useEffect(() => {
     if (user) {
@@ -47,8 +48,8 @@ function EdithForm({ params }) {
         const parsedForm = JSON.parse(result[0].jsonform);
         setJsonForm(parsedForm);
         setRecord(result[0]);
-        setSelectedTheme(result[0].theme || 'light');
-        setSelectedGradient(result[0].background || '');
+        setSelectedTheme(result[0].theme || "light");
+        setSelectedGradient(result[0].background || "");
       } else {
         console.error("No form data found");
         setJsonForm(null);
@@ -63,11 +64,12 @@ function EdithForm({ params }) {
     debounce(async (updatedJsonForm, theme, background) => {
       if (!record) return;
       try {
-        await db.update(jsonForms)
-          .set({ 
+        await db
+          .update(jsonForms)
+          .set({
             jsonform: JSON.stringify(updatedJsonForm),
             theme: theme,
-            background: background
+            background: background,
           })
           .where(
             and(
@@ -85,7 +87,7 @@ function EdithForm({ params }) {
   );
 
   const onFieldUpdate = (updatedField, index) => {
-    setJsonForm(prevForm => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       if (!updatedForm.response || !updatedForm.response[0]) {
         updatedForm.response = [{ fields: [] }];
@@ -99,9 +101,9 @@ function EdithForm({ params }) {
       return updatedForm;
     });
   };
-  
+
   const onFormDetailsUpdate = (key, value) => {
-    setJsonForm(prevForm => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       if (!updatedForm.response || !updatedForm.response[0]) {
         updatedForm.response = [{}];
@@ -112,10 +114,9 @@ function EdithForm({ params }) {
       return updatedForm;
     });
   };
-  
 
   const onFieldDelete = async (index) => {
-    setJsonForm(prevForm => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       updatedForm.response[0].fields.splice(index, 1);
       debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
@@ -125,7 +126,7 @@ function EdithForm({ params }) {
   };
 
   const onFieldDuplicate = (index) => {
-    setJsonForm(prevForm => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       const fieldToDuplicate = updatedForm.response[0].fields[index];
       const duplicatedField = { ...fieldToDuplicate, id: Date.now() };
@@ -136,14 +137,16 @@ function EdithForm({ params }) {
     });
   };
 
-
   const onFieldAdd = (newField) => {
-    setJsonForm(prevForm => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       if (!updatedForm.response) {
         updatedForm.response = [];
       }
-      if (!updatedForm.response[0] || typeof updatedForm.response[0] === 'string') {
+      if (
+        !updatedForm.response[0] ||
+        typeof updatedForm.response[0] === "string"
+      ) {
         updatedForm.response[0] = {};
       }
       if (!updatedForm.response[0].fields) {
@@ -165,50 +168,72 @@ function EdithForm({ params }) {
     return "";
   };
 
-  
-  
   const { formTitle, formSubheading, createdAt } = useMemo(() => {
-    if (!record) return { formTitle: "Untitled Form", formSubheading: "", createdAt: "Unknown date" };
-  
+    if (!record)
+      return {
+        formTitle: "Untitled Form",
+        formSubheading: "",
+        createdAt: "Unknown date",
+      };
+
     const formData = record.jsonform ? JSON.parse(record.jsonform) : null;
     return {
-      formTitle: extractStringValue(formData?.response[0]?.formTitle) || "Untitled Form",
-      formSubheading: extractStringValue(formData?.response[0]?.formSubheading) || "",
+      formTitle:
+        extractStringValue(formData?.response[0]?.formTitle) || "Untitled Form",
+      formSubheading:
+        extractStringValue(formData?.response[0]?.formSubheading) || "",
       // createdAt: record.createdAt
       //   ? moment(record.createdAt, "DD/MM/YYYY").format("MMM D, YYYY")
       //   : "Unknown date"
     };
   }, [record]);
-  
-  
-  
 
-  const onFormTitleUpdate = (newTitle) => {
+  const handleAddField = (newField) => {
     setJsonForm(prevForm => {
+      const updatedForm = JSON.parse(JSON.stringify(prevForm));
+      if (!updatedForm.response) {
+        updatedForm.response = [];
+      }
+      if (!updatedForm.response[0] || typeof updatedForm.response[0] === 'string') {
+        updatedForm.response[0] = {};
+      }
+      if (!updatedForm.response[0].fields) {
+        updatedForm.response[0].fields = [];
+      }
+      updatedForm.response[0].fields.push(newField);
+      debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
+      toast.success("New field added successfully");
+      return updatedForm;
+    });
+  };
+
+
+  const onFormTitleUpdate = useCallback((newTitle) => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       updatedForm.response[0].formTitle = newTitle;
       debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
       return updatedForm;
     });
-  };
-  const onFormDescriptionUpdate = (newDescription) => {
-    setJsonForm(prevForm => {
+  }, [debouncedUpdateDb, selectedTheme, selectedGradient]);
+
+  const onFormDescriptionUpdate = useCallback((newDescription) => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       updatedForm.response[0].formDescription = newDescription;
       debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
       return updatedForm;
     });
-  };
+  }, [debouncedUpdateDb, selectedTheme, selectedGradient]);
 
-  const onFormSubheadingUpdate = (newSubheading) => {
-    setJsonForm(prevForm => {
+  const onFormSubheadingUpdate = useCallback((newSubheading) => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       updatedForm.response[0].formSubheading = newSubheading;
       debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
       return updatedForm;
     });
-  };
-  
+  }, [debouncedUpdateDb, selectedTheme, selectedGradient]);
 
   const handleThemeChange = (theme) => {
     setSelectedTheme(theme);
@@ -220,59 +245,109 @@ function EdithForm({ params }) {
     debouncedUpdateDb(jsonform, selectedTheme, gradient);
   };
 
+
+  const toggleControl = () => {
+    setIsControlVisible(!isControlVisible);
+  };
+  
+
   return (
-    <div className="px-10">
-      <div className="flex justify-between items-center px-5 mt-2">
-      <Button
-      variant="ghost"
-        className="flex gap-2 items-center my-5 
-        cursor-pointer hover:font-bold hover:bg-transparent"
-        onClick={() => router.back()}
-      >
-        <ArrowLeft className=""/> Back
-      </Button>
-
-      <div className="flex gap-2 ">
-        <Link href={'/netform/'+record?.id} target="_blank">
-        <Button className="flex gap-2 bg-slate-white border border-black text-black 
-          hover:bg-transparent hover:border-b-2 font-semi-bold"> 
-          <SquareArrowUpRight className="h-5 w-5"/>
-            Live Preview
+    <div className="w-full px-4 sm:px-6 lg:px-8 lg:pl-[calc(25%+2rem)]">
+      <div className="flex justify-between items-center mt-2 mb-4">
+        <Button
+          variant="ghost"
+          className="flex gap-2 items-center cursor-pointer hover:font-bold hover:bg-transparent"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className=""/> Back
         </Button>
-        </Link>
 
-        <RWebShare
-              data={{
-                text: `${formSubheading}, Build your forms in seconds with NetForms`,
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}netforms/${record?.id}`,
-                title: formTitle,
-              }}
-              onClick={() => console.log("shared successfully!")}
+        <div className="flex gap-2 items-center">
+          <Button
+            className="flex sm:hidden gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+            variant="ghost"
+            size="icon"
+            onClick={toggleControl}
+          >
+            <Settings size={24} />
+          </Button>
+          <Link href={'/netform/'+record?.id} target="_blank">
+            <Button className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold">
+              <SquareArrowUpRight className="h-5 w-5"/>
+              View
+            </Button>
+          </Link>
+          <RWebShare
+            data={{
+              text: `${formSubheading}, Build your forms in seconds with NetForms`,
+              url: `${process.env.NEXT_PUBLIC_BASE_URL}netforms/${record?.id}`,
+              title: formTitle,
+            }}
+            onClick={() => console.log("shared successfully!")}
+          >
+            <Button
+              size="sm"
+              className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
             >
-              <Button
-                size="sm"
-                className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
-              >
-                <Share2 className="h-4 w-4" />
-                Share
-              </Button>
-            </RWebShare>
-      </div>
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
+          </RWebShare>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="p-5 border rounded-lg shadow-md">
+      <div className="flex flex-col sm:flex-row gap-5 relative">
+        {/* Mobile Control component */}
+        <div className="sm:hidden">
           <Control
             selectedTheme={selectedTheme}
-            setSelectedTheme={handleThemeChange}
+            setSelectedTheme={setSelectedTheme}
             selectedGradient={selectedGradient}
-            setSelectedGradient={handleGradientChange}
-            onAddField={onFieldAdd}
+            setSelectedGradient={setSelectedGradient}
+            onAddField={handleAddField}
+            isOpen={isControlVisible}
+            onClose={toggleControl}
+          />
+        </div>
+        <div 
+          className={`
+            fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+            ${isControlVisible ? 'translate-x-0' : '-translate-x-full'}
+            sm:hidden
+          `}
+        >
+          <div className="h-full overflow-y-auto p-5">
+            <Control
+              selectedTheme={selectedTheme}
+              setSelectedTheme={handleThemeChange}
+              selectedGradient={selectedGradient}
+              setSelectedGradient={handleGradientChange}
+              onAddField={handleAddField}
+            />
+          </div>
+        </div>
+
+        {/* Overlay for mobile */}
+        {isControlVisible && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 sm:hidden"
+            onClick={toggleControl}
+          ></div>
+        )}
+
+        {/* Desktop Control component */}
+        <div className="hidden sm:block fixed top-20 left-0 w-1/4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+          <Control
+            selectedTheme={selectedTheme}
+            setSelectedTheme={setSelectedTheme}
+            selectedGradient={selectedGradient}
+            setSelectedGradient={setSelectedGradient}
+            onAddField={handleAddField}
           />
         </div>
 
         <div
-          className="md:col-span-2 border rounded-lg p-5 h-auto flex items-center justify-center"
+          className="w-full border rounded-lg p-5 h-auto flex items-center justify-center"
           style={{
             background: selectedGradient || 'white',
             minHeight: '300px',
@@ -287,6 +362,9 @@ function EdithForm({ params }) {
               onFieldDelete={onFieldDelete}
               onFieldDuplicate={onFieldDuplicate}
               onFieldAdd={onFieldAdd}
+              onFormTitleUpdate={onFormTitleUpdate}
+              onFormDescriptionUpdate={onFormDescriptionUpdate}
+              onFormSubheadingUpdate={onFormSubheadingUpdate}
             />
           ) : (
             <div>Loading...</div>

@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "./_components/Header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
-
+import { ControlVisibilityProvider } from "@/contexts/ControlVisibilityContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,14 +20,15 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" data-theme="light">
-        <body className={inter.className}>
-          <Header />
-          <Toaster/>
-          {children}
-         
-        </body>
-      </html>
+      <ControlVisibilityProvider>
+        <html lang="en" data-theme="light">
+          <body className={inter.className}>
+            <Header />
+            <Toaster />
+            {children}
+          </body>
+        </html>
+      </ControlVisibilityProvider>
     </ClerkProvider>
   );
 }
