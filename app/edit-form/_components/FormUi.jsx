@@ -1,38 +1,15 @@
-// FormUi Component Documentation
-
-/**
- * FormUi - A dynamic form rendering component
- * 
- * This component renders a customizable form based on the provided JSON data.
- * It supports various field types, inline editing of title and subheading,
- * and responsive design for mobile and desktop views.
- *
- * @param {Object} props
- * @param {Object} props.jsonForm - The form data in JSON format
- * @param {Function} props.onFieldUpdate - Callback for updating a field
- * @param {Function} props.onFieldDelete - Callback for deleting a field
- * @param {Function} props.onFieldDuplicate - Callback for duplicating a field
- * @param {Function} props.onFormTitleUpdate - Callback for updating the form title
- * @param {Function} props.onFormSubheadingUpdate - Callback for updating the form subheading
- * @param {string} props.selectedTheme - The selected theme for the form
- * @param {boolean} props.editable - Whether the form is editable (default: true)
- */
-
-
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import FieldEdit from "./FieldEdit";
-import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { db } from "@/configs";
 import { formSubmissions } from "@/configs/schema";
 import { sql } from "drizzle-orm";
-import { Button } from "@/components/ui/button";
-
-
+import FieldEdit from "./FieldEdit";
 
 function FormUi({
   jsonForm,
@@ -49,6 +26,7 @@ function FormUi({
   const [isEditingSubheading, setIsEditingSubheading] = useState(false);
   const [expandedField, setExpandedField] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [formValues, setFormValues] = useState({});
   const [showMobileTitleActions, setShowMobileTitleActions] = useState(false);
   const [showMobileSubheadingActions, setShowMobileSubheadingActions] =
     useState(false);
@@ -88,16 +66,9 @@ function FormUi({
     );
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const formData = new FormData(e.target);
-
-    console.log("Raw FormData:", Array.from(formData.entries()));
-
-    const formValues = Object.fromEntries(formData.entries());
-    console.log("Captured form values:", formValues);
 
     try {
       const submissionData = {
@@ -107,16 +78,9 @@ function FormUi({
         data: sql`${JSON.stringify(formValues)}::jsonb`,
       };
 
-      console.log("Submission data:", submissionData);
-
-      const result = await db.insert(formSubmissions).values(submissionData);
-      console.log("Database insertion result:", result);
-
-      const insertedData = await db.select().from(formSubmissions).limit(1);
-      console.log("Inserted data:", insertedData);
-
+      await db.insert(formSubmissions).values(submissionData);
       alert("Form submitted successfully!");
-      e.target.reset();
+      setFormValues({});
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Error submitting form. Please try again.");
@@ -125,18 +89,34 @@ function FormUi({
     }
   };
 
-  const renderField = (field) => {
+  const getUniqueFieldId = (field) => {
+    return (
+      field.fieldName ||
+      field.FormField ||
+      field.name ||
+      field.id ||
+      field.formLabel.replace(/\s+/g, "_").toLowerCase()
+    );
+  };
+
+  const handleInputChange = (fieldId, value) => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [fieldId]: value,
+    }));
+  };
+
+  const renderField = (field, index) => {
     const fieldType = getFieldValue(field, "fieldType") || "text";
-    const fieldName =
-      getFieldValue(field, "FormField") || getFieldValue(field, "fieldName");
+    const fieldId = getUniqueFieldId(field, index);
     const options = getOptions(field);
 
-    console.log("Rendering field:", { field, fieldName, fieldType, options });
-
     const commonProps = {
-      id: fieldName,
-      name: fieldName,
+      id: fieldId,
+      name: fieldId,
       className: "w-full p-2 border rounded bg-transparent",
+      value: formValues[fieldId] || "",
+      onChange: (e) => handleInputChange(fieldId, e.target.value),
     };
 
     switch (fieldType.toLowerCase()) {
@@ -144,15 +124,15 @@ function FormUi({
       case "select":
         return (
           <select {...commonProps}>
-            {options &&
-              options.map((option, index) => (
-                <option
-                  key={index}
-                  value={typeof option === "object" ? option.value : option}
-                >
-                  {typeof option === "object" ? option.label : option}
-                </option>
-              ))}
+            <option value="">Select an option</option>
+            {options.map((option, optionIndex) => (
+              <option
+                key={optionIndex}
+                value={typeof option === "object" ? option.value : option}
+              >
+                {typeof option === "object" ? option.label : option}
+              </option>
+            ))}
           </select>
         );
       case "time":
@@ -178,41 +158,61 @@ function FormUi({
         );
       case "radio":
         return (
-          <RadioGroup name={fieldName}>
-            {options &&
-              options.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value={typeof option === "object" ? option.value : option}
-                    name={fieldName}
-                    id={`${fieldName}-${index}`}
-                  />
-                  <label htmlFor={`${fieldName}-${index}`}>
-                    {typeof option === "object" ? option.label : option}
-                  </label>
-                </div>
-              ))}
+          <RadioGroup
+            name={fieldId}
+            value={formValues[fieldId] || ""}
+            onValueChange={(value) => handleInputChange(fieldId, value)}
+          >
+            {options.map((option, optionIndex) => (
+              <div key={optionIndex} className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={typeof option === "object" ? option.value : option}
+                  id={`${fieldId}-${optionIndex}`}
+                />
+                <label htmlFor={`${fieldId}-${optionIndex}`}>
+                  {typeof option === "object" ? option.label : option}
+                </label>
+              </div>
+            ))}
           </RadioGroup>
         );
       case "checkbox":
         if (!Array.isArray(options) || options.length === 0) {
           return (
             <div className="flex items-center space-x-2">
-              <Checkbox id={fieldName} name={fieldName} value="true" />
-              <label htmlFor={fieldName}>{field.formLabel}</label>
+              <Checkbox
+                id={fieldId}
+                name={fieldId}
+                checked={formValues[fieldId] || false}
+                onCheckedChange={(checked) =>
+                  handleInputChange(fieldId, checked)
+                }
+              />
+              <label htmlFor={fieldId}>{field.formLabel}</label>
             </div>
           );
         } else {
           return (
             <div className="space-y-2">
-              {options.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
+              {options.map((option, optionIndex) => (
+                <div key={optionIndex} className="flex items-center space-x-2">
                   <Checkbox
-                    id={`${fieldName}-${index}`}
-                    name={fieldName}
+                    id={`${fieldId}-${optionIndex}`}
+                    name={fieldId}
                     value={typeof option === "object" ? option.value : option}
+                    checked={(formValues[fieldId] || []).includes(
+                      typeof option === "object" ? option.value : option
+                    )}
+                    onCheckedChange={(checked) => {
+                      const value = typeof option === "object" ? option.value : option;
+                      handleInputChange(fieldId, checked 
+                        ? [...(formValues[fieldId] || []), value]
+                        : (formValues[fieldId] || []).filter(v => v !== value)
+                      );
+                    }}
+                    
                   />
-                  <label htmlFor={`${fieldName}-${index}`}>
+                  <label htmlFor={`${fieldId}-${optionIndex}`}>
                     {typeof option === "object" ? option.label : option}
                   </label>
                 </div>
@@ -231,8 +231,8 @@ function FormUi({
               step={field.step}
             />
             <div className="flex justify-between mt-2">
-              {field.labels.map((label, index) => (
-                <span key={index} className="text-sm">
+              {field.labels.map((label, labelIndex) => (
+                <span key={labelIndex} className="text-sm">
                   {label}
                 </span>
               ))}
@@ -243,7 +243,6 @@ function FormUi({
         return null;
     }
   };
-
   const handleDeleteTitle = () => {
     onFormTitleUpdate("");
   };
@@ -397,13 +396,14 @@ function FormUi({
           </>
         )}
       </div>
+
       <form onSubmit={handleSubmit} className="w-full space-y-6">
         {formData.fields && formData.fields.length > 0 ? (
           formData.fields.map((field, index) => (
             <div key={index} className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <label
-                  htmlFor={getFieldValue(field, "FormField")}
+                  htmlFor={getUniqueFieldId(field, index)}
                   className="font-medium"
                 >
                   {field.formLabel}
@@ -428,7 +428,7 @@ function FormUi({
               </div>
               <div className="flex flex-col md:flex-row md:items-end">
                 <div className="flex-grow mb-2 md:mb-0 md:mr-4">
-                  {renderField(field)}
+                  {renderField(field, index)}
                 </div>
                 {editable && (!isMobile || expandedField === index) && (
                   <div className="flex justify-end space-x-2">

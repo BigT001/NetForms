@@ -23,8 +23,7 @@ function EdithForm({ params }) {
   const [selectedTheme, setSelectedTheme] = useState('light');
   const [selectedGradient, setSelectedGradient] = useState('');
   const [isControlVisible, setIsControlVisible] = useState(false);
-    const [isControlCollapsed, setIsControlCollapsed] = useState(false);
-
+  
 
   useEffect(() => {
     if (user) {
