@@ -10,9 +10,12 @@ import { db } from "@/configs";
 import { formSubmissions } from "@/configs/schema";
 import { sql } from "drizzle-orm";
 import FieldEdit from "./FieldEdit";
+import { toast } from 'react-hot-toast';
+
 
 function FormUi({
   jsonForm,
+  formId,
   onFieldUpdate,
   onFieldDelete,
   onFieldDuplicate,
@@ -26,10 +29,27 @@ function FormUi({
   const [isEditingSubheading, setIsEditingSubheading] = useState(false);
   const [expandedField, setExpandedField] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [validFormId, setValidFormId] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [showMobileTitleActions, setShowMobileTitleActions] = useState(false);
   const [showMobileSubheadingActions, setShowMobileSubheadingActions] =
     useState(false);
+
+    
+    useEffect(() => {
+      const numericFormId = Number(formId);
+      if (!Number.isInteger(numericFormId) || numericFormId <= 0) {
+        console.warn(`Invalid form ID: ${formId}. Using default ID 1.`);
+        setValidFormId(1); // Use a default ID
+      } else {
+        setValidFormId(numericFormId);
+      }
+    
+      if (formId && typeof formId !== "number") {
+        console.warn("FormUi: formId should be a number");
+      }
+    }, [formId]);
+    
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -47,6 +67,46 @@ function FormUi({
   if (!formData || !Array.isArray(formData.fields)) {
     return <div>Invalid form data structure</div>;
   }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      console.log("handleSubmit - validFormId:", validFormId);
+      if (validFormId === null || validFormId <= 0) {
+        throw new Error("Invalid form ID");
+      }
+  
+      const currentDate = new Date().toISOString();
+      const submissionData = {
+        formId: validFormId,
+        jsonResponse: JSON.stringify(formValues),
+        createdBy: 'anonymous', // Note: 'anonymous' is spelled correctly here
+        createdAt: currentDate,
+        data: sql`${JSON.stringify(formValues)}::jsonb`,
+      };
+      console.log("Submitting form data:", submissionData);
+  
+      // Log the SQL query (if using Drizzle ORM)
+      const query = db.insert(formSubmissions).values(submissionData).toSQL();
+      console.log("SQL Query:", query.sql);
+      console.log("SQL Parameters:", query.params);
+  
+      const result = await db.insert(formSubmissions).values(submissionData);
+      console.log("Form submission result:", result);
+      toast.success("Form submitted successfully!");
+      setFormValues({});
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error(`Error submitting form: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  
+  
+  
+  
 
   const getFieldValue = (field, key) => {
     return (
@@ -66,29 +126,6 @@ function FormUi({
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const submissionData = {
-        jsonResponse: JSON.stringify(formValues),
-        createdBy: "anonymous",
-        createdAt: new Date().toISOString(),
-        data: sql`${JSON.stringify(formValues)}::jsonb`,
-      };
-
-      await db.insert(formSubmissions).values(submissionData);
-      alert("Form submitted successfully!");
-      setFormValues({});
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Error submitting form. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const getUniqueFieldId = (field) => {
     return (
       field.fieldName ||
@@ -104,6 +141,19 @@ function FormUi({
       ...prevValues,
       [fieldId]: value,
     }));
+  };
+
+  const handleDeleteTitle = () => {
+    onFormTitleUpdate("");
+  };
+
+  const handleDeleteSubheading = () => {
+    onFormSubheadingUpdate("");
+  };
+
+  const toggleFieldExpansion = (e, index) => {
+    e.preventDefault();
+    setExpandedField(expandedField === index ? null : index);
   };
 
   const renderField = (field, index) => {
@@ -204,13 +254,17 @@ function FormUi({
                       typeof option === "object" ? option.value : option
                     )}
                     onCheckedChange={(checked) => {
-                      const value = typeof option === "object" ? option.value : option;
-                      handleInputChange(fieldId, checked 
-                        ? [...(formValues[fieldId] || []), value]
-                        : (formValues[fieldId] || []).filter(v => v !== value)
+                      const value =
+                        typeof option === "object" ? option.value : option;
+                      handleInputChange(
+                        fieldId,
+                        checked
+                          ? [...(formValues[fieldId] || []), value]
+                          : (formValues[fieldId] || []).filter(
+                              (v) => v !== value
+                            )
                       );
                     }}
-                    
                   />
                   <label htmlFor={`${fieldId}-${optionIndex}`}>
                     {typeof option === "object" ? option.label : option}
@@ -243,24 +297,12 @@ function FormUi({
         return null;
     }
   };
-  const handleDeleteTitle = () => {
-    onFormTitleUpdate("");
-  };
-
-  const handleDeleteSubheading = () => {
-    onFormSubheadingUpdate("");
-  };
-
-  const toggleFieldExpansion = (e, index) => {
-    e.preventDefault();
-    setExpandedField(expandedField === index ? null : index);
-  };
 
   return (
     <div
-      className="w-full mx-auto p-4 md:p-6 rounded-lg shadow-lg"
-      data-theme={selectedTheme}
-    >
+    className="w-full mx-auto p-4 md:p-6 rounded-lg shadow-lg"
+    data-theme={selectedTheme}
+  >
       {/* Title Section */}
       <div className="relative mb-4 text-center">
         {editable && isEditingTitle ? (

@@ -8,6 +8,20 @@
       "when": 1727853112193,
       "tag": "0000_nifty_bloodaxe",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1728478988177,
+      "tag": "0001_big_tempest",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1728485054355,
+      "tag": "0002_empty_nick_fury",
+      "breakpoints": true
     }
   ]
 }

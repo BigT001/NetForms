@@ -8,7 +8,7 @@ import { ArrowLeft, Share2, SquareArrowUpRight, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import FormUi from "../_components/FormUi";
-import debounce from 'lodash/debounce';
+import debounce from "lodash/debounce";
 import { toast } from "sonner";
 import Control from "../_components/Control";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,9 @@ function EdithForm({ params }) {
   const [jsonform, setJsonForm] = useState(null);
   const router = useRouter();
   const [record, setRecord] = useState(null);
-  const [selectedTheme, setSelectedTheme] = useState('light');
-  const [selectedGradient, setSelectedGradient] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState("light");
+  const [selectedGradient, setSelectedGradient] = useState("");
   const [isControlVisible, setIsControlVisible] = useState(false);
-  
 
   useEffect(() => {
     if (user) {
@@ -188,12 +187,15 @@ function EdithForm({ params }) {
   }, [record]);
 
   const handleAddField = (newField) => {
-    setJsonForm(prevForm => {
+    setJsonForm((prevForm) => {
       const updatedForm = JSON.parse(JSON.stringify(prevForm));
       if (!updatedForm.response) {
         updatedForm.response = [];
       }
-      if (!updatedForm.response[0] || typeof updatedForm.response[0] === 'string') {
+      if (
+        !updatedForm.response[0] ||
+        typeof updatedForm.response[0] === "string"
+      ) {
         updatedForm.response[0] = {};
       }
       if (!updatedForm.response[0].fields) {
@@ -206,33 +208,41 @@ function EdithForm({ params }) {
     });
   };
 
+  const onFormTitleUpdate = useCallback(
+    (newTitle) => {
+      setJsonForm((prevForm) => {
+        const updatedForm = JSON.parse(JSON.stringify(prevForm));
+        updatedForm.response[0].formTitle = newTitle;
+        debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
+        return updatedForm;
+      });
+    },
+    [debouncedUpdateDb, selectedTheme, selectedGradient]
+  );
 
-  const onFormTitleUpdate = useCallback((newTitle) => {
-    setJsonForm((prevForm) => {
-      const updatedForm = JSON.parse(JSON.stringify(prevForm));
-      updatedForm.response[0].formTitle = newTitle;
-      debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
-      return updatedForm;
-    });
-  }, [debouncedUpdateDb, selectedTheme, selectedGradient]);
+  const onFormDescriptionUpdate = useCallback(
+    (newDescription) => {
+      setJsonForm((prevForm) => {
+        const updatedForm = JSON.parse(JSON.stringify(prevForm));
+        updatedForm.response[0].formDescription = newDescription;
+        debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
+        return updatedForm;
+      });
+    },
+    [debouncedUpdateDb, selectedTheme, selectedGradient]
+  );
 
-  const onFormDescriptionUpdate = useCallback((newDescription) => {
-    setJsonForm((prevForm) => {
-      const updatedForm = JSON.parse(JSON.stringify(prevForm));
-      updatedForm.response[0].formDescription = newDescription;
-      debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
-      return updatedForm;
-    });
-  }, [debouncedUpdateDb, selectedTheme, selectedGradient]);
-
-  const onFormSubheadingUpdate = useCallback((newSubheading) => {
-    setJsonForm((prevForm) => {
-      const updatedForm = JSON.parse(JSON.stringify(prevForm));
-      updatedForm.response[0].formSubheading = newSubheading;
-      debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
-      return updatedForm;
-    });
-  }, [debouncedUpdateDb, selectedTheme, selectedGradient]);
+  const onFormSubheadingUpdate = useCallback(
+    (newSubheading) => {
+      setJsonForm((prevForm) => {
+        const updatedForm = JSON.parse(JSON.stringify(prevForm));
+        updatedForm.response[0].formSubheading = newSubheading;
+        debouncedUpdateDb(updatedForm, selectedTheme, selectedGradient);
+        return updatedForm;
+      });
+    },
+    [debouncedUpdateDb, selectedTheme, selectedGradient]
+  );
 
   const handleThemeChange = (theme) => {
     setSelectedTheme(theme);
@@ -244,11 +254,9 @@ function EdithForm({ params }) {
     debouncedUpdateDb(jsonform, selectedTheme, gradient);
   };
 
-
   const toggleControl = () => {
     setIsControlVisible(!isControlVisible);
   };
-  
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 lg:pl-[calc(25%+2rem)]">
@@ -258,7 +266,7 @@ function EdithForm({ params }) {
           className="flex gap-2 items-center cursor-pointer hover:font-bold hover:bg-transparent"
           onClick={() => router.back()}
         >
-          <ArrowLeft className=""/> Back
+          <ArrowLeft className="" /> Back
         </Button>
 
         <div className="flex gap-2 items-center">
@@ -270,9 +278,9 @@ function EdithForm({ params }) {
           >
             <Settings size={24} />
           </Button>
-          <Link href={'/netform/'+record?.id} target="_blank">
+          <Link href={"/netform/" + record?.id} target="_blank">
             <Button className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold">
-              <SquareArrowUpRight className="h-5 w-5"/>
+              <SquareArrowUpRight className="h-5 w-5" />
               View
             </Button>
           </Link>
@@ -308,10 +316,10 @@ function EdithForm({ params }) {
             onClose={toggleControl}
           />
         </div>
-        <div 
+        <div
           className={`
             fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-            ${isControlVisible ? 'translate-x-0' : '-translate-x-full'}
+            ${isControlVisible ? "translate-x-0" : "-translate-x-full"}
             sm:hidden
           `}
         >
@@ -328,14 +336,17 @@ function EdithForm({ params }) {
 
         {/* Overlay for mobile */}
         {isControlVisible && (
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40 sm:hidden"
             onClick={toggleControl}
           ></div>
         )}
 
         {/* Desktop Control component */}
-        <div className="hidden sm:block fixed top-20 left-0 w-1/4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+        <div
+          className="hidden sm:block fixed top-20 left-0 w-1/4 overflow-y-auto"
+          style={{ maxHeight: "calc(100vh - 80px)" }}
+        >
           <Control
             selectedTheme={selectedTheme}
             setSelectedTheme={setSelectedTheme}
@@ -348,12 +359,13 @@ function EdithForm({ params }) {
         <div
           className="w-full border rounded-lg p-5 h-auto flex items-center justify-center"
           style={{
-            background: selectedGradient || 'white',
-            minHeight: '300px',
+            background: selectedGradient || "white",
+            minHeight: "300px",
           }}
         >
           {jsonform ? (
             <FormUi
+              formId={Number(params?.formId)}
               jsonForm={jsonform}
               selectedTheme={selectedTheme}
               onFieldUpdate={onFieldUpdate}
