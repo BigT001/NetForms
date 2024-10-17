@@ -5,11 +5,12 @@ import React from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateForm from "./CreateForm";
+// import Responses from "@_components/Responses";
 
 function SideNav({ isOpen, setIsOpen }) {
   const menuList = [
-    { id: 1, name: "My Forms", icon: "📝", path: "/dashboard" },
-    { id: 2, name: "Responses", icon: "💬", path: "/dashboard/responses" },
+    { id: 1, name: "My Forms", icon: "📝", path: "/userDashboard" },
+    { id: 2, name: "Responses", icon: "💬", path: "/userDashboard/responses" },
     { id: 3, name: "Analytics", icon: "📊", path: "/dashboard/analytics" },
     { id: 4, name: "Upgrade", icon: "🚀", path: "/dashboard/upgrade" },
   ];
@@ -79,6 +80,7 @@ function SideNav({ isOpen, setIsOpen }) {
          <div className="p-4 border-t">
         <div className="w-full mb-4 text-center">
           <CreateForm setIsOpen={setIsOpen} />
+         
         </div>
 
           <div className="mb-2">
@@ -92,6 +94,7 @@ function SideNav({ isOpen, setIsOpen }) {
             <strong>3</strong> out of <strong>5</strong> forms created
           </p>
           <p className="text-xs text-gray-500">
+           
             Upgrade for unlimited AI form builds
           </p>
         </div>
