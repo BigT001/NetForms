@@ -111,7 +111,7 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
             </SelectContent>
           </Select>
 
-          <div>
+          {/* <div>
             <h2 className="mt-8 my-1 font-bold">Background</h2>
             <div className="grid grid-cols-3 gap-4">
               {GradientBg.map(
@@ -134,9 +134,9 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
                     </div>
                   )
               )}
-            </div>
+            </div> */}
 
-            <div className="flex flex-col items-center mt-4">
+            {/* <div className="flex flex-col items-center mt-4">
               <Button
                 variant="ghost"
                 className="hover:bg-transparent hover:text-inherit"
@@ -155,7 +155,7 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
                   className="cursor-pointer"
                 />
               )}
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-8">
@@ -173,7 +173,7 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
           </div>
         </div>
       </div>
- </div>
+//  </div>
   );
 }
 

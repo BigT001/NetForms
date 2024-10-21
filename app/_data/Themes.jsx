@@ -31,30 +31,7 @@ export const themes = {
     winter,
     wireframe,
 
-    red: {
-        primary: '#FF0000',
-        secondary: '#FF6666',
-        accent: '#FF3333',
-        neutral: '#FFF0F0'
-      },
-      blue: {
-        primary: '#0000FF',
-        secondary: '#6666FF',
-        accent: '#3333FF',
-        neutral: '#F0F0FF'
-      },
-      wine: {
-        primary: '#722F37',
-        secondary: '#A64D57',
-        accent: '#8C3C45',
-        neutral: '#F9E8EA'
-      },
-      orange: {
-        primary: '#FFA500',
-        secondary: '#FFD280',
-        accent: '#FFB733',
-        neutral: '#FFF5E6'
-      }
+    
     
     
   }

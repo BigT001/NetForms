@@ -7,11 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { db } from "@/configs";
-import { formSubmissions } from "@/configs/schema";
-import { sql } from "drizzle-orm";
+import { formSubmissions, jsonForms } from "@/configs/schema";
+import { sql, eq } from "drizzle-orm";
 import FieldEdit from "./FieldEdit";
 import { toast } from 'react-hot-toast';
-
 
 function FormUi({
   jsonForm,
@@ -32,24 +31,21 @@ function FormUi({
   const [validFormId, setValidFormId] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [showMobileTitleActions, setShowMobileTitleActions] = useState(false);
-  const [showMobileSubheadingActions, setShowMobileSubheadingActions] =
-    useState(false);
+  const [showMobileSubheadingActions, setShowMobileSubheadingActions] = useState(false);
 
-    
-    useEffect(() => {
-      const numericFormId = Number(formId);
-      if (!Number.isInteger(numericFormId) || numericFormId <= 0) {
-        console.warn(`Invalid form ID: ${formId}. Using default ID 1.`);
-        setValidFormId(1); // Use a default ID
-      } else {
-        setValidFormId(numericFormId);
-      }
-    
-      if (formId && typeof formId !== "number") {
-        console.warn("FormUi: formId should be a number");
-      }
-    }, [formId]);
-    
+  useEffect(() => {
+    const numericFormId = Number(formId);
+    if (!Number.isInteger(numericFormId) || numericFormId <= 0) {
+      console.warn(`Invalid form ID: ${formId}. Using default ID 1.`);
+      setValidFormId(1);
+    } else {
+      setValidFormId(numericFormId);
+    }
+
+    if (formId && typeof formId !== "number") {
+      console.warn("FormUi: formId should be a number");
+    }
+  }, [formId]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -57,6 +53,25 @@ function FormUi({
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (selectedTheme) {
+      updateThemeInDatabase(selectedTheme);
+    }
+  }, [selectedTheme]);
+
+  const updateThemeInDatabase = async (theme) => {
+    try {
+      await db
+        .update(jsonForms)
+        .set({ theme: theme })
+        .where(eq(jsonForms.id, validFormId));
+      console.log("Theme updated in database");
+    } catch (error) {
+      console.error("Error updating theme in database:", error);
+      toast.error("Failed to update theme in database");
+    }
+  };
 
   if (!jsonForm || !jsonForm.response || jsonForm.response.length === 0) {
     return <div>Loading...😃</div>;
@@ -299,10 +314,11 @@ function FormUi({
   };
 
   return (
-    <div
-    className="w-full mx-auto p-4 md:p-6 rounded-lg shadow-lg"
-    data-theme={selectedTheme}
-  >
+    <div className="w-full mx-auto">
+      <div
+        className="p-4 md:p-6 rounded-lg shadow-lg"
+        data-theme={selectedTheme}
+      >
       {/* Title Section */}
       <div className="relative mb-4 text-center">
         {editable && isEditingTitle ? (
@@ -494,6 +510,7 @@ function FormUi({
           {isSubmitting ? "Submitting..." : "Submit"}
         </Button>
       </form>
+    </div>
     </div>
   );
 }

@@ -7,16 +7,18 @@ import { jsonForms } from '@/configs/schema'
 import { eq } from 'drizzle-orm'
 import FormUi from '@/app/edit-form/_components/FormUi'
 import { toast } from 'react-hot-toast'
+import { updateFormThemeAndBackground } from '@/app/userDashboard/_components/actions'
 
 function LiveNetForm({ params }) {
   const [record, setRecord] = useState(null)
   const [jsonForm, setJsonForm] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [theme, setTheme] = useState('light')
 
   useEffect(() => {
     if (params?.formid) {
-      getFormData()
+      getFormData()   
     }
   }, [params?.formid])
 
@@ -40,12 +42,25 @@ function LiveNetForm({ params }) {
 
       setRecord(result[0])
       setJsonForm(JSON.parse(result[0].jsonform))
+      setTheme(result[0].theme || 'light')
     } catch (err) {
       console.error('Error fetching form data:', err)
       setError(err.message)
       toast.error(`Error: ${err.message}`)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleThemeChange = async (newTheme) => {
+    try {
+      await updateFormThemeAndBackground(Number(params.formid), newTheme, record.background)
+      setTheme(newTheme)
+      setRecord(prevRecord => ({ ...prevRecord, theme: newTheme }))
+      toast.success('Theme updated successfully')
+    } catch (err) {
+      console.error('Error updating theme:', err)
+      toast.error(`Error updating theme: ${err.message}`)
     }
   }
 
@@ -71,9 +86,10 @@ function LiveNetForm({ params }) {
             jsonForm={jsonForm}
             onFieldUpdate={() => console.log('Field updated')}
             onFieldDelete={() => console.log('Field deleted')}
-            selectedTheme={record?.theme || 'light'}
+            selectedTheme={theme}
             editable={false}
             background={record?.background}
+            onThemeChange={handleThemeChange}
           />
         )}
       </div>
