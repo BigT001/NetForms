@@ -5,6 +5,7 @@ import React from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateForm from "./CreateForm";
+import Link from "next/link";
 // import Responses from "@_components/Responses";
 
 function SideNav({ isOpen, setIsOpen }) {
@@ -82,7 +83,18 @@ function SideNav({ isOpen, setIsOpen }) {
          <div className="p-4 border-t">
         <div className="w-full mb-4 text-center">
           <CreateForm setIsOpen={setIsOpen} />
-         
+        </div>
+
+
+        <div>
+            <p className="text-gray-700 text-center">
+              Developer: <br />
+              <Link href="www.samuelstanley.com" target="_blank">
+              <span className="text-gray-600">
+              Samuel Stanley
+            </span>
+              </Link>
+            </p> 
         </div>
 
           {/* <div className="mb-2">
