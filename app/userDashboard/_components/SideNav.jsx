@@ -11,9 +11,11 @@ function SideNav({ isOpen, setIsOpen }) {
   const menuList = [
     { id: 1, name: "My Forms", icon: "📝", path: "/userDashboard" },
     { id: 2, name: "Responses", icon: "💬", path: "/userDashboard/responses" },
-    { id: 3, name: "Analytics", icon: "📊", path: "/dashboard/analytics" },
-    { id: 4, name: "Upgrade", icon: "🚀", path: "/dashboard/upgrade" },
+    // { id: 3, name: "Analytics", icon: "📊", path: "/dashboard/analytics" },
+    // { id: 4, name: "Upgrade", icon: "🚀", path: "/dashboard/upgrade" },
+    // { id: 5, name: "Admin", icon: "👑", path: "/admin/adminDashboard" },
   ];
+  
 
   const path = usePathname();
   const router = useRouter();
@@ -83,7 +85,7 @@ function SideNav({ isOpen, setIsOpen }) {
          
         </div>
 
-          <div className="mb-2">
+          {/* <div className="mb-2">
             <progress
               className="progress progress-primary w-full"
               value="60"
@@ -96,7 +98,7 @@ function SideNav({ isOpen, setIsOpen }) {
           <p className="text-xs text-gray-500">
            
             Upgrade for unlimited AI form builds
-          </p>
+          </p> */}
         </div>
       </div>
     </div>

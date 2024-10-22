@@ -5,6 +5,8 @@ import Header from "./_components/Header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ControlVisibilityProvider } from "@/contexts/ControlVisibilityContext";
+import { Analytics } from '@vercel/analytics/react';
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +28,7 @@ export default function RootLayout({
             <Header />
             <Toaster />
             {children}
+            <Analytics />
           </body>
         </html>
       </ControlVisibilityProvider>

@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { themes } from "@/app/_data/Themes";
-import GradientBg from "@/app/_data/GradientBg";
 import {
   Select,
   SelectContent,
@@ -11,18 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { X } from "lucide-react";
 
-function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelectedGradient, onAddField, isOpen, onClose }) {
-  const [showMore, setShowMore] = useState(false);
-
-  const handleGradientClick = (bg) => {
-    if (typeof setSelectedGradient === 'function') {
-      setSelectedGradient(bg.gradient);
-    } else {
-      console.error('setSelectedGradient is not a function');
-    }
-  };
+function Control({ selectedTheme, setSelectedTheme, onAddField, isOpen, onClose }) {
   const addField = (fieldType) => {
     let newField = {
       fieldType: fieldType,
@@ -58,11 +48,11 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
 
   return (
     <div
-      className={`fixed inset-y-0 left-0 z-[1000] w-64 bg-white shadow-md border transform ${
-        isOpen ? "translate-x-0" : "-translate-x-full "
-      } transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:w-full`}
+      className={`fixed inset-y-0 left-0 z-[1000] w-64 h-full bg-white shadow-md transform ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      } transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:w-full md:border-r border-gray-200`}
     >
-      <div className="p-4 h-full overflow-y-auto">
+      <div className="flex flex-col h-full">
         <Button
           className="absolute top-2 right-2 sm:hidden"
           variant="ghost"
@@ -72,108 +62,66 @@ function Control({ selectedTheme, setSelectedTheme, selectedGradient, setSelecte
           <X size={24} />
         </Button>
 
-        <div className="p-4 h-full overflow-y-auto">
+        <div className="flex-grow overflow-y-auto p-4">
           <h2 className="mb-4 font-bold">Themes</h2>
-          <Select
-            value={selectedTheme}
-            onValueChange={(value) => {
-              setSelectedTheme(value);
-              document.documentElement.setAttribute("data-theme", value);
-            }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(themes).map(([themeName, themeColors]) => (
-                <SelectItem key={themeName} value={themeName}>
-                  <div className="flex items-center">
-                    <div
-                      className="h-6 w-6 rounded-full mr-2"
-                      style={{ backgroundColor: themeColors.primary }}
-                    ></div>
-                    <div
-                      className="h-6 w-6 rounded-full mr-2"
-                      style={{ backgroundColor: themeColors.secondary }}
-                    ></div>
-                    <div
-                      className="h-6 w-6 rounded-full mr-2"
-                      style={{ backgroundColor: themeColors.accent }}
-                    ></div>
-                    <div
-                      className="h-6 w-6 rounded-full mr-2"
-                      style={{ backgroundColor: themeColors.neutral }}
-                    ></div>
-                    <span>{themeName}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* <div>
-            <h2 className="mt-8 my-1 font-bold">Background</h2>
-            <div className="grid grid-cols-3 gap-4">
-              {GradientBg.map(
-                (bg, index) =>
-                  (showMore || index < 6) && (
-                    <div key={index} className="items-center">
-                      <div
-                        className={`w-full h-[50px] rounded-lg cursor-pointer hover:border-black hover:border-2 ${
-                          bg.gradient === selectedGradient ? 'border-2 border-black' : ''
-                        }`}
-                        style={{ background: bg.gradient || 'white' }}
-                        onClick={() => handleGradientClick(bg)}
-                      >
-                        {bg.name === "None" && (
-                          <span className="flex items-center justify-center h-full">
-                            None
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )
-              )}
-            </div> */}
-
-            {/* <div className="flex flex-col items-center mt-4">
-              <Button
-                variant="ghost"
-                className="hover:bg-transparent hover:text-inherit"
-                onClick={() => setShowMore(!showMore)}
+          <div className="relative">
+            <Select
+              value={selectedTheme}
+              onValueChange={setSelectedTheme}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Theme" />
+              </SelectTrigger>
+              <SelectContent
+                className="z-[1001] w-[var(--radix-select-trigger-width)] max-h-[300px]"
+                position="popper"
+                sideOffset={5}
               >
-                {showMore ? "Show less" : "Show more"}
-              </Button>
-              {showMore ? (
-                <ChevronUp
-                  onClick={() => setShowMore(false)}
-                  className="cursor-pointer"
-                />
-              ) : (
-                <ChevronDown
-                  onClick={() => setShowMore(true)}
-                  className="cursor-pointer"
-                />
-              )}
-            </div> */}
+                {Object.entries(themes).map(([themeName, themeColors]) => (
+                  <SelectItem key={themeName} value={themeName}>
+                    <div className="flex items-center">
+                      <div
+                        className="h-6 w-6 rounded-full mr-2"
+                        style={{ backgroundColor: themeColors.primary }}
+                      ></div>
+                      <div
+                        className="h-6 w-6 rounded-full mr-2"
+                        style={{ backgroundColor: themeColors.secondary }}
+                      ></div>
+                      <div
+                        className="h-6 w-6 rounded-full mr-2"
+                        style={{ backgroundColor: themeColors.accent }}
+                      ></div>
+                      <div
+                        className="h-6 w-6 rounded-full mr-2"
+                        style={{ backgroundColor: themeColors.neutral }}
+                      ></div>
+                      <span>{themeName}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="mt-8">
             <h2 className="mb-4 font-bold">Add Field</h2>
-            {['text', 'textarea', 'select', 'radio', 'checkbox', 'date', 'time', 'scale'].map((fieldType) => (
-              <Button
-                key={fieldType}
-                size="sm"
-                onClick={() => addField(fieldType)}
-                className="mr-2 mb-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
-              >
-                {fieldType.charAt(0).toUpperCase() + fieldType.slice(1)}
-              </Button>
-            ))}
+            <div className="flex flex-wrap">
+              {['text', 'textarea', 'select', 'radio', 'checkbox', 'date', 'time', 'scale'].map((fieldType) => (
+                <Button
+                  key={fieldType}
+                  size="sm"
+                  onClick={() => addField(fieldType)}
+                  className="mr-2 mb-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+                >
+                  {fieldType.charAt(0).toUpperCase() + fieldType.slice(1)}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-//  </div>
+    </div>
   );
 }
 

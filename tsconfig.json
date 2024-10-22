@@ -30,6 +30,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "configs/schema.js"
-, "app/edit-form/parseJsonForm.jsx"  ],
+, "app/edit-form/parseJsonForm.jsx", "app/admin/layout.tsx"  ],
   "exclude": ["node_modules"]
 }

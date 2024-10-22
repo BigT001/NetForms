@@ -117,11 +117,6 @@ function FormUi({
       setIsSubmitting(false);
     }
   };
-  
-  
-  
-  
-  
 
   const getFieldValue = (field, key) => {
     return (
