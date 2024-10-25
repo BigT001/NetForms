@@ -75,8 +75,8 @@ function Header() {
       <div className="border-b sticky z-[100] h-14 inset-x-0 top-0 w-full border-gray-200 bg-white/75 backdrop-blur-lg translation-all">
         <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-5">
           <Link href="/" className="z-40 font-bold">
-            <span className="bg-blue-900 text-white">Net</span>
-            <span className="font-bold text-red-800">Forms</span>
+            <span className="bg-primary font-extrabold text-white">Net</span>
+            <span className="font-extrabold text-secondary">Forms</span>
           </Link>
 
           {isSignedIn ? (

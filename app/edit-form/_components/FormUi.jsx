@@ -315,13 +315,13 @@ function FormUi({
         data-theme={selectedTheme}
       >
       {/* Title Section */}
-      <div className="relative mb-4 text-center">
+      <div className="relative text-center">
         {editable && isEditingTitle ? (
           <Input
             value={formData.formTitle}
             onChange={(e) => onFormTitleUpdate(e.target.value)}
             onBlur={() => setIsEditingTitle(false)}
-            className="font-bold text-center text-xl md:text-2xl mb-2 w-full"
+            className="font-bold text-center text-xl md:text-2xl  w-full"
             autoFocus
           />
         ) : (
@@ -501,7 +501,11 @@ function FormUi({
         ) : (
           <p>No fields available for this form.</p>
         )}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button 
+          type="submit" 
+          className="px-12 py-2 mx-auto block" 
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Submitting..." : "Submit"}
         </Button>
       </form>

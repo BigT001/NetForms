@@ -153,33 +153,40 @@ function FormListItemsResponse({ jsonForm, formRecord }) {
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 my-4">
+    <div className="min-h-[100px]"> {/* Adjust min-height as needed */}
       <h2 className="text-md font-semibold mb-2">{jsonForm.response[0].formTitle}</h2>
       <h2 className="text-sm mb-2">{jsonForm.response[0].formSubheading}</h2>
-      <hr className='my-4'></hr>
-
-      <div className="flex justify-between items-center mt-4">
-        <h2 className='text-sm'>
-          <strong>{responseCount}</strong> {responseCount === 1 ? 'Response' : 'Responses'}
-        </h2>
-
-        <div className="space-x-2">
-          <Button
-            size="sm"
-            onClick={downloadCSV}
-            disabled={loading}
-          >
-            {loading ? <Loader2 className='animate-spin'/> : <><Download className="w-4 h-4 mr-2" /></>}
-          </Button>
-          <Button
-            size="sm"
-            onClick={viewInGoogleSheets}
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            View in Sheets
-          </Button>
-        </div>
+    </div>
+  
+    <hr className="border-t border-gray-200" />
+  
+    <div className="flex justify-between items-center mt-4">
+      <h2 className='text-sm'>
+        <strong>{responseCount}</strong> {responseCount === 1 ? 'Response' : 'Responses'}
+      </h2>
+  
+      <div className="space-x-2">
+        <Button
+          size="sm"
+          onClick={downloadCSV}
+          disabled={loading}
+          className="bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+        >
+          {loading ? <Loader2 className='animate-spin'/> : <><Download className="w-4 h-4 mr-2" /></>}
+        </Button>
+        <Button
+          size="sm"
+          onClick={viewInGoogleSheets}
+          className="bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+        >
+          <ExternalLink className="w-4 h-4 mr-2" />
+          Sheet
+        </Button>
       </div>
     </div>
+  </div>
+  
+
   )
 }
 

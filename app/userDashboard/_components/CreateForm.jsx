@@ -47,7 +47,7 @@ export default function CreateForm({ setIsOpen }) {
         response: [formData],
         formStructure: {
           fields: formData.fields || [],
-          formTitle: formData.formTitle || formData.formHeading || "Untitled Form",
+          formHeading: formData.formHeading || formData.formHeading || "Untitled Form",
           formSubheading: formData.formSubheading || "",
           formName: formData.formName || ""
         }
@@ -108,7 +108,7 @@ export default function CreateForm({ setIsOpen }) {
               </Button>
               <Button
                 disabled={loading}
-                className="bg-blue-800 hover:bg-blue-700"
+                className="bg-primary hover:bg-secondary"
                 onClick={onCreateForm}
               >
                 {loading ? <Loader2 className="animate-spin mr-2" /> : null}

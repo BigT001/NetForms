@@ -75,7 +75,7 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
           >
             <h2 className="font-semibold text-center mb-4">Edit form field</h2>
             <div className="mb-6">
-              <label className="text-sm">Label Name</label>
+              <label className="text-sm font-bold">Label Name</label>
               <Input
                 type="text"
                 value={editedField.formLabel || ""}
@@ -92,11 +92,12 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
                 }
               />
             </div>
+            
             {(editedField.fieldType === "select" ||
               editedField.fieldType === "radio" ||
               editedField.fieldType === "checkbox") && (
               <div className="mb-6">
-                <label className="text-sm">Options</label>
+                <label className="text-sm font-bold">Options</label>
                 {(editedField.options || []).map((option, index) => (
                   <div key={index} className="flex items-center mt-2">
                     <Input
@@ -110,38 +111,46 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
                     <Button
                       size="sm"
                       onClick={() => handleDeleteOption(index)}
+                      className="bg-gray-200"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-black" />
                     </Button>
                   </div>
                 ))}
-                <Button
-                  size="sm"
-                  onClick={handleAddOption}
-                  className="flex mt-4 items-center justify-center mx-auto bg-gray-200 hover:bg-gray-300 text-black"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Option
-                </Button>
               </div>
             )}
-            <div className="flex justify-center">
+            
+            <div className="flex justify-between items-center mt-4">
+              <Button
+                  size="sm"
+                  onClick={handleAddOption}
+                  className="flex mt-4 bg-gray-200 hover:bg-gray-300 text-black"
+                >
+                  <Plus className="h-4 w-4 mr-2 text-primary" />
+                  Add Option
+                </Button>
+
+              <div className="flex justify-between items-center">
               <Button
                 size="sm"
-                className="mt-4 bg-blue-800 hover:bg-blue-900"
+                className="mt-4 bg-primary  hover:bg-white
+                hover:text-black hover:border-primary hover:border-2"
                 onClick={handleUpdate}
               >
                 Update
               </Button>
+
               <Button
                 size="sm"
-                className="mt-4 ml-2"
+                className="mt-4 ml-2 bg-secondary  hover:bg-white
+                hover:text-black hover:border-secondary hover:border-2"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
               </Button>
             </div>
           </div>
+        </div>
         </div>
       )}
       <Button
@@ -173,9 +182,9 @@ function FieldEdit({ field, onUpdate, onDelete, onDuplicate }) {
           e.stopPropagation();
           setIsDeleteConfirmOpen(true);
         }}
-        className="ml-2 bg-gray-200 hover:bg-gray-300 text-black"
+        className="ml-2 bg-gray-200 hover:bg-gray-300 text-black hover:text-red-800"
       >
-        <Trash2 className="h-5 w-5 text-primary" />
+        <Trash2 className="h-5 w-5 hover:text-red-800" />
       </Button>
       {isDeleteConfirmOpen && (
         <div

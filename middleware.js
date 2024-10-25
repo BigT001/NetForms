@@ -3,13 +3,13 @@ import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(["userDashboard"]);
 
-export default function middleware(request) {
+export default async function middleware(request) {
   const response = NextResponse.next();
   
-  // Add the Cross-Origin-Opener-Policy header
+  // Set headers after creating the response
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  
-  // Apply Clerk middleware
+
+  // Return the Clerk middleware with the modified response
   return clerkMiddleware((auth, req) => {
     if (isProtectedRoute(req)) auth().protect();
   })(request, response);
