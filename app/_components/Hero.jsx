@@ -10,19 +10,19 @@ import ScreenshotHome from "./ScreenshotHome";
 
 export default function Hero() {
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className="flex flex-col overflow-hidden mt-14">
       <ContainerScroll
         titleComponent={
           <>
-            <h1 className="text-3xl font-extrabold pt-16">
+            <h1 className="text-3xl lg:text-5xl font-extrabold pt-16">
               Create Your Form <br />
               <strong className="font-extrabold text-primary sm:block">
                 {" "}
                 In Seconds Not Hours{" "}
               </strong>
             </h1>
-            <p className="mt-4 sm:text-xl/relaxed mb-10">
-              Transform Your Form Creation Process with a prompt. <br /> Build
+            <p className="mt-4 sm:text-xl/relaxed mb-10 lg:px-32">
+              Transform Your Form Creation Process with a prompt. Build
               and Customize in Seconds, Not Hours.
             </p>
 
