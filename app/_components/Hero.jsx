@@ -21,12 +21,12 @@ export default function Hero() {
                 In Seconds Not Hours{" "}
               </strong>
             </h1>
-            <p className="mt-4 sm:text-xl/relaxed mb-10 lg:px-32">
+            <p className="mt-4 sm:text-xl/relaxed mb-6 lg:px-32">
               Transform Your Form Creation Process with a prompt. Build
               and Customize in Seconds, Not Hours.
             </p>
 
-            <div className="flex justify-center gap-4 mb-16">
+            <div className="flex justify-center gap-4 lg:mb-16">
               <a
                 className="rounded bg-primary px-12 py-3 text-sm font-bold 
               text-white shadow hover:bg-secondary hover:border-secondary  focus:outline-none focus:ring 
@@ -42,7 +42,7 @@ export default function Hero() {
         <ScreenshotHome />
       </ContainerScroll>
 
-      <div className="px-10 md:px-24 space-y-32">
+      <div className="lg:px-10 md:px-24 space-y-32">
         <KeyFeatures />
         <HowItWorks />
         <LearnHow />

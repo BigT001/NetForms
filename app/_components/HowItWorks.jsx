@@ -40,7 +40,7 @@ export default function HowItWorks() {
 
   return (
     <section className="w-full">
-      <div className="container px-4 md:px-6 mx-auto max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
             How It Works
@@ -51,11 +51,11 @@ export default function HowItWorks() {
         </div>
 
         <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {cards.slice(0, 3).map((card, index) => (
               <div
                 key={index}
-                className={`${card.color} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300`}
+                className={`${card.color} rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 w-full`}
               >
                 <div className="flex flex-col h-full">
                   <div className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6">
@@ -73,11 +73,11 @@ export default function HowItWorks() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             {cards.slice(3).map((card, index) => (
               <div
                 key={index + 3}
-                className={`${card.color} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300`}
+                className={`${card.color} rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 w-full`}
               >
                 <div className="flex flex-col h-full">
                   <div className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6">
