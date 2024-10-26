@@ -14,7 +14,7 @@ export default function Hero() {
       <ContainerScroll
         titleComponent={
           <>
-            <h1 className="text-3xl font-extrabold sm:text-5xl pt-16">
+            <h1 className="text-3xl font-extrabold pt-16">
               Create Your Form <br />
               <strong className="font-extrabold text-primary sm:block">
                 {" "}
