@@ -38,11 +38,11 @@ export const ContainerScroll = ({
 
   return (
     <div
-    className="h-[45rem] md:h-[55rem] flex items-center justify-center relative p-2 md:p-10"
+    className="h-[45rem] md:h-[55rem] flex items-center justify-center relative p-2 "
     ref={containerRef}
     >
       <div
-        className="py-10 md:py-32 w-full relative" // Increased padding
+        className=" md:py-32 w-full relative" // Increased padding
         style={{
           perspective: "1000px",
         }}
