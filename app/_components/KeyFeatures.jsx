@@ -4,7 +4,7 @@ import { Zap, Shield, BarChart, Pencil, Sheet, FileDown } from "lucide-react"
 export default function KeyFeatures() {
   return (
     <div>
-      <section id="features" className="w-full py-12 md:pt-24 lg:pt-32">
+      <section id="features" className="w-full mt-10 md:mt-0 md:pt-24 lg:pt-32">
         <div className="container px-4 md:px-6">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">
             Key Features
@@ -27,7 +27,7 @@ export default function KeyFeatures() {
             </div>
 
             <div className="flex flex-col items-center text-center relative">
-              <span className="absolute -top-2 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+              <span className="absolute -top-2 right-0 bg-secondary text-white text-xs px-2 py-1 rounded-full">
                 Coming Soon
               </span>
               <BarChart className="h-12 w-12 mb-4 text-primary" />
@@ -54,7 +54,7 @@ export default function KeyFeatures() {
             </div>
 
             <div className="flex flex-col items-center text-center">
-              <FileDown className="h-12 w-12 mb-4 text-primary" />
+              <FileDown className="h-12 w-12 text-primary" />
               <h3 className="text-xl font-bold mb-2">CSV Download</h3>
               <p className="text-gray-500">
                 Export your form responses instantly in CSV format for easy data processing and integration with other tools.

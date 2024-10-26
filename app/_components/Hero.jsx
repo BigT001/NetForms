@@ -5,8 +5,8 @@ import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import Image from "next/image";
 import KeyFeatures from "./KeyFeatures";
 import HowItWorks from "./HowItWorks";
-import ColorPalettes from "./ColorPalettes";
-
+import LearnHow from "./LearnHow";
+import ScreenshotHome from "./ScreenshotHome";
 
 export default function Hero() {
   return (
@@ -14,7 +14,7 @@ export default function Hero() {
       <ContainerScroll
         titleComponent={
           <>
-            <h1 className="text-3xl font-extrabold sm:text-5xl">
+            <h1 className="text-3xl font-extrabold sm:text-5xl pt-16">
               Create Your Form <br />
               <strong className="font-extrabold text-primary sm:block">
                 {" "}
@@ -26,40 +26,26 @@ export default function Hero() {
               and Customize in Seconds, Not Hours.
             </p>
 
-            <div className="flex justify-center gap-4 mb-8">
+            <div className="flex justify-center gap-4 mb-16">
               <a
-                className="rounded bg-primary px-12 py-3 text-sm font-medium 
-              text-white shadow hover:bg-secondary focus:outline-none focus:ring 
+                className="rounded bg-primary px-12 py-3 text-sm font-bold 
+              text-white shadow hover:bg-secondary hover:border-secondary  focus:outline-none focus:ring 
               active:bg-primary"
                 href="#"
               >
-                + Create Form
-              </a>
-              <a
-                className="rounded px-12 py-3 text-sm font-medium text-primary shadow 
-               hover:text-secondary focus:outline-none focus:ring active:text-primary"
-                href="#"
-              >
-                How To Use
+                Get Started For Free
               </a>
             </div>
           </>
         }
       >
-        <Image
-          src={`/netformedith.png`}
-          alt="hero"
-          height={720}
-          width={1400}
-          className="mx-auto rounded-2xl object-cover h-full object-left-top"
-          draggable={false}
-        />
+        <ScreenshotHome />
       </ContainerScroll>
 
-      <div className="px-24">
+      <div className="px-10 md:px-24 space-y-32">
         <KeyFeatures />
         <HowItWorks />
-        <ColorPalettes />
+        <LearnHow />
       </div>
     </div>
   );

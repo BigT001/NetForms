@@ -1,129 +1,101 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, PenLine, Sparkles, Settings, Share2, Download } from 'lucide-react';
 
-export default function Component() {
-  const [hoveredCard, setHoveredCard] = useState(null)
-
+export default function HowItWorks() {
   const cards = [
-    { 
-      title: "Enter Your Prompt", 
-      description: "Describe the form you need in plain language.", 
-      image: "Enterprompt.png" 
+    {
+      title: "Enter Your Prompt",
+      description: "Simply describe your ideal form in plain language. Our AI understands complex requirements and form structures.",
+      icon: <PenLine className="w-6 h-6" />,
+      color: "bg-blue-50"
     },
-    
-    { 
-      title: "AI Generates Form", 
-      description: "Our AI creates a form based on your description.", 
-      image: "generated.png" 
+    {
+      title: "AI Generates Form",
+      description: "Watch as our advanced AI instantly creates a professional form matching your specifications with smart field validation.",
+      icon: <Sparkles className="w-6 h-6" />,
+      color: "bg-purple-50"
     },
-
-    { 
-      title: "Customize and Edit", 
-      description: "Fine-tune your form and make it perfect.", 
-      image: "/images/customize.svg" 
+    {
+      title: "Customize and Edit",
+      description: "Fine-tune your form with our intuitive editor. Add fields, modify layouts, and set up custom logic with ease.",
+      icon: <Settings className="w-6 h-6" />,
+      color: "bg-green-50"
     },
-
-    { 
-      title: "Share Your Form", 
-      description: "Share your form with your audience.", 
-      image: "/images/share.svg" 
+    {
+      title: "Share Your Form",
+      description: "Distribute your form via direct link, embed it on your website, or share through email. Track responses in real-time.",
+      icon: <Share2 className="w-6 h-6" />,
+      color: "bg-orange-50"
     },
-
-    { 
-      title: "Download/Export Response", 
-      description: "Export and analyze your form responses.", 
-      image: "/images/export.svg" 
+    {
+      title: "Download/Export Response",
+      description: "Export responses in multiple formats (CSV, Excel, PDF). Generate insights with built-in analytics dashboard.",
+      icon: <Download className="w-6 h-6" />,
+      color: "bg-pink-50"
     }
-  ]
+  ];
 
   return (
-    <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-white to-gray-100">
-      <div className="container px-4 md:px-6">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">
-          How It Works
-        </h2>
+    <section className="w-full">
+      <div className="container px-4 md:px-6 mx-auto max-w-7xl">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+            How It Works
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Create professional forms in minutes with our AI-powered platform. No coding required.
+          </p>
+        </div>
 
-        <div className="space-y-8 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {cards.slice(0, 3).map((card, index) => (
-              <motion.div
+              <div
                 key={index}
-                className="flex flex-col bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                onHoverStart={() => setHoveredCard(index)}
-                onHoverEnd={() => setHoveredCard(null)}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                className={`${card.color} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300`}
               >
-                <div className="relative h-48">
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-6 flex flex-col justify-center flex-grow">
-                  <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold mb-4">
-                    {index + 1}
+                <div className="flex flex-col h-full">
+                  <div className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6">
+                    {card.icon}
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{card.title}</h3>
-                  <p className="text-gray-500">{card.description}</p>
-                  {hoveredCard === index && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-4 flex items-center text-primary"
-                    >
-                      <span className="mr-2">Learn more</span>
-                      <ArrowRight size={20} />
-                    </motion.div>
-                  )}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
+                      {index + 1}
+                    </div>
+                    <h3 className="text-xl font-semibold">{card.title}</h3>
+                  </div>
+                  <p className="text-gray-700 flex-grow">{card.description}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {cards.slice(3).map((card, index) => (
-              <motion.div
+              <div
                 key={index + 3}
-                className="flex flex-col md:flex-row bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                onHoverStart={() => setHoveredCard(index + 3)}
-                onHoverEnd={() => setHoveredCard(null)}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                className={`${card.color} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300`}
               >
-                <div className="relative md:w-1/2 h-48 md:h-auto">
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-6 flex flex-col justify-center flex-grow">
-                  <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold mb-4">
-                    {index + 4}
+                <div className="flex flex-col h-full">
+                  <div className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6">
+                    {card.icon}
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{card.title}</h3>
-                  <p className="text-gray-500">{card.description}</p>
-                  {hoveredCard === index + 3 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-4 flex items-center text-primary"
-                    >
-                      <span className="mr-2">Learn more</span>
-                      <ArrowRight size={20} />
-                    </motion.div>
-                  )}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
+                      {index + 4}
+                    </div>
+                    <h3 className="text-xl font-semibold">{card.title}</h3>
+                  </div>
+                  <p className="text-gray-700 flex-grow">{card.description}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
