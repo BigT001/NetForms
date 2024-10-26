@@ -7,34 +7,48 @@ import KeyFeatures from "./KeyFeatures";
 import HowItWorks from "./HowItWorks";
 import LearnHow from "./LearnHow";
 import ScreenshotHome from "./ScreenshotHome";
+import { SignInButton, useAuth } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 
 export default function Hero() {
+  const { isSignedIn } = useAuth();
+
   return (
     <div className="flex flex-col overflow-hidden mt-8 md:mt-14">
       <ContainerScroll
         titleComponent={
           <>
-            <h1 className="text-3xl lg:text-5xl font-extrabold pt-16">
+            <h1 className="text-4xl lg:text-6xl font-extrabold pt-16">
               Create Your Form <br />
-              <strong className="font-extrabold text-primary sm:block">
-                {" "}
-                In Seconds Not Hours{" "}
-              </strong>
             </h1>
-            <p className="mt-4 sm:text-xl/relaxed mb-6 lg:px-32">
-              Transform Your Form Creation Process with a prompt. Build
-              and Customize in Seconds, Not Hours.
+            <strong className="text-3xl lg:text-5xl font-extrabold text-primary sm:block">
+              {" "}
+              In Seconds Not Hours{" "}
+            </strong>
+            <p className="mt-4 sm:text-xl/relaxed mb-6 md:px-48">
+              Transform Your Form Creation Process with a prompt. Build and
+              Customize in Seconds, Not Hours.
             </p>
 
-            <div className=" justify-center lg:mb-16">
-              <a
-                className="rounded bg-primary px-12 py-3 text-sm font-bold 
-              text-white shadow hover:bg-secondary hover:border-secondary  focus:outline-none focus:ring 
-              active:bg-primary"
-                href="#"
-              >
-                Get Started For Free
-              </a>
+            <div className="justify-center lg:mb-16">
+              {isSignedIn ? (
+                <a href="/userDashboard">
+                  <Button className="bg-primary hover:bg-secondary font-bold">
+                    Create Your Form
+                  </Button>
+                </a>
+              ) : (
+                <a
+                  className="focus:outline-none focus:ring active:bg-primary"
+                  href="/sign-in"
+                >
+                  <SignInButton>
+                    <Button className="hover:bg-secondary font-bold">
+                      Get Started For Free
+                    </Button>
+                  </SignInButton>
+                </a>
+              )}
             </div>
           </>
         }
