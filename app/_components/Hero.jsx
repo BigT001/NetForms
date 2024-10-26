@@ -10,7 +10,7 @@ import ScreenshotHome from "./ScreenshotHome";
 
 export default function Hero() {
   return (
-    <div className="flex flex-col overflow-hidden mt-14">
+    <div className="flex flex-col overflow-hidden mt-8 md:mt-14">
       <ContainerScroll
         titleComponent={
           <>
@@ -26,7 +26,7 @@ export default function Hero() {
               and Customize in Seconds, Not Hours.
             </p>
 
-            <div className="flex justify-center gap-4 lg:mb-16">
+            <div className=" justify-center lg:mb-16">
               <a
                 className="rounded bg-primary px-12 py-3 text-sm font-bold 
               text-white shadow hover:bg-secondary hover:border-secondary  focus:outline-none focus:ring 
