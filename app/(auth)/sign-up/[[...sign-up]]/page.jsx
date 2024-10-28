@@ -21,6 +21,7 @@ const formSchema = z.object({
 export default function SignUpPage() {
   const { signUp, isLoaded } = useSignUp();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -33,32 +34,42 @@ export default function SignUpPage() {
   });
 
   const handleSubmit = async (values) => {
-    if (!isLoaded) return;
+    if (!isLoaded || isSubmitting) return;
+    setIsSubmitting(true);
   
     try {
       const result = await signUp.create({
         emailAddress: values.email,
         password: values.password,
         firstName: values.firstName,
-        lastName: values.lastName,
+        lastName: values.lastName
       });
   
-      await result.prepareEmailAddressVerification({
-        strategy: "email_code"
-      });
-      
-      router.push("/verify-email");
-      toast.success("Verification email sent!");
-      
+      if (result.status === "complete") {
+        toast.success("Account created successfully!");
+        router.push("/userDashboard");
+      } else {
+        await result.prepareEmailAddressVerification({
+          strategy: "email_code"
+        });
+        router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
+        toast.success("Check your email for verification code");
+      }
     } catch (err) {
-      toast.error("Something went wrong");
+      console.log("Detailed error:", err);
+      if (err.errors) {
+        toast.error(err.errors[0].message);
+      } else {
+        toast.error("Email already exists or invalid input");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
 
   const signUpWith = async (strategy) => {
     if (!isLoaded) return;
-
     try {
       await signUp.authenticateWithRedirect({
         strategy,

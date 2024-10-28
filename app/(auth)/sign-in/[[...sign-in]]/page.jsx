@@ -31,21 +31,31 @@ export default function SignInPage() {
 
   const handleSubmit = async (values) => {
     if (!isLoaded) return;
-
+  
     try {
       const result = await signIn.create({
         identifier: values.email,
         password: values.password,
       });
-      
+  
       if (result.status === "complete") {
+        await result.createdSessionId;
+        
+        // Wait for session to be active
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
         toast.success("Welcome back!");
-        router.push("/dashboard");
+        window.location.href = "/userDashboard";
+      } else {
+        // Handle additional authentication steps if needed
+        toast.error("Additional verification required");
       }
     } catch (err) {
-      toast.error("Invalid credentials");
+      console.log("Sign-in error:", err);
+      toast.error("Invalid email or password");
     }
   };
+  
 
   const signInWith = async (strategy) => {
     if (!isLoaded) return;
