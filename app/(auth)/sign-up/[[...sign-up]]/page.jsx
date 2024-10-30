@@ -84,7 +84,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className=" flex items-center justify-center bg-gray-50">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -101,7 +101,7 @@ export default function SignUpPage() {
 
         <Button
           onClick={signUpWithGoogle}
-          className="w-full flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-secondary transition-colors"
         >
           <FcGoogle className="w-5 h-5" />
           Sign up with Google
@@ -185,7 +185,7 @@ export default function SignUpPage() {
           <Button
             type="submit"
             disabled={!isLoaded || isSubmitting}
-            className="w-full"
+            className="w-full hover:bg-secondary"
           >
             {isSubmitting ? "Signing up..." : "Sign up"}
           </Button>

@@ -97,7 +97,7 @@ export default function SignInPage() {
 
         <Button
           onClick={signInWithGoogle}
-          className="w-full flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-secondary transition-colors"
         >
           <FcGoogle className="w-5 h-5" />
           Sign in with Google
