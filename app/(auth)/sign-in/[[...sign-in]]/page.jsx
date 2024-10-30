@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
 import { useSignIn } from "@clerk/nextjs";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -17,7 +18,7 @@ const formSchema = z.object({
 });
 
 export default function SignInPage() {
-  const { signIn, isLoaded } = useSignIn();
+  const { signIn, isLoaded, setActive } = useSignIn();
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
@@ -31,7 +32,7 @@ export default function SignInPage() {
 
   const handleSubmit = async (values) => {
     if (!isLoaded) return;
-  
+    
     try {
       const result = await signIn.create({
         identifier: values.email,
@@ -39,42 +40,48 @@ export default function SignInPage() {
       });
   
       if (result.status === "complete") {
-        await result.createdSessionId;
-        
-        // Wait for session to be active
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        toast.success("Welcome back!");
-        window.location.href = "/userDashboard";
+        await setActive({ session: result.createdSessionId })
+        toast.success("Welcome back!")
+        router.push("/userDashboard")
       } else {
-        // Handle additional authentication steps if needed
-        toast.error("Additional verification required");
+        console.error("Unexpected result:", result)
+        toast.error("An error occurred. Please try again.")
       }
     } catch (err) {
-      console.log("Sign-in error:", err);
-      toast.error("Invalid email or password");
+      console.error("Sign-in error:", err)
+      
+      const errorCode = err.errors?.[0]?.code;
+      switch (errorCode) {
+        case "form_password_incorrect":
+          toast.error("Password is incorrect. Please try again.");
+          break;
+        case "form_identifier_not_found":
+          toast.error("Email not found. Please check your email address.");
+          break;
+        default:
+          toast.error(err.errors?.[0]?.message || "Sign-in failed. Please verify your email and password.");
+      }
     }
-  };
-  
+  }
 
-  const signInWith = async (strategy) => {
+  const signInWithGoogle = async () => {
     if (!isLoaded) return;
 
     try {
       await signIn.authenticateWithRedirect({
-        strategy,
-        redirectUrl: "/userDashboard",
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
         redirectUrlComplete: "/userDashboard",
       });
     } catch (err) {
-      toast.error(`Could not connect to ${strategy}`);
+      console.error("Google sign-in error:", err);
+      toast.error("Could not connect to Google. Please try again.");
     }
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg"
@@ -88,64 +95,69 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <div className="flex gap-4">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => signInWith('oauth_google')}
-            className="flex-1 flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <FcGoogle className="w-5 h-5" />
-            Google
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => signInWith('oauth_github')}
-            className="flex-1 flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <FaGithub className="w-5 h-5" />
-            GitHub
-          </motion.button>
-        </div>
+        <Button
+          onClick={signInWithGoogle}
+          className="w-full flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <FcGoogle className="w-5 h-5" />
+          Sign in with Google
+        </Button>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            <span className="px-2 bg-white text-gray-500">
+              Or continue with
+            </span>
           </div>
         </div>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-8 space-y-6">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="mt-8 space-y-6"
+        >
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
-              <input
+              <Input
                 {...form.register("email")}
+                id="email"
+                type="email"
                 className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="name@example.com"
               />
               {form.formState.errors.email && (
-                <p className="mt-1 text-sm text-red-600">{form.formState.errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {form.formState.errors.email.message}
+                </p>
               )}
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
-              <input
-                type="password"
+              <Input
                 {...form.register("password")}
+                id="password"
+                type="password"
                 className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Enter your password"
               />
               {form.formState.errors.password && (
-                <p className="mt-1 text-sm text-red-600">{form.formState.errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {form.formState.errors.password.message}
+                </p>
               )}
             </div>
           </div>
@@ -159,13 +171,16 @@ export default function SignInPage() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
                 Remember me
               </label>
             </div>
 
             <div className="text-sm">
-              <button 
+              <button
                 type="button"
                 onClick={async () => {
                   const email = form.getValues("email");
@@ -173,14 +188,22 @@ export default function SignInPage() {
                     toast.error("Please enter your email first");
                     return;
                   }
+
                   try {
-                    await signIn.create({
-                      strategy: "reset_password_email",
+                    const response = await signIn.create({
                       identifier: email,
+                      strategy: "reset_password_email_code",
                     });
-                    toast.success("Password reset email sent!");
+
+                    if (response) {
+                      toast.success("Reset code sent! Check your email.", {
+                        duration: 5000,
+                      });
+                      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+                    }
                   } catch (err) {
-                    toast.error("Failed to send reset email");
+                    console.error("Reset password error:", err);
+                    toast.error("Account not found. Please check your email address.");
                   }
                 }}
                 className="font-medium text-primary hover:text-secondary"
@@ -190,15 +213,13 @@ export default function SignInPage() {
             </div>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
+          <Button
             type="submit"
             disabled={!isLoaded}
             className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
           >
             {!isLoaded ? "Loading..." : "Sign in"}
-          </motion.button>
+          </Button>
         </form>
 
         <p className="mt-2 text-center text-sm text-gray-600">

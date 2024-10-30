@@ -5,11 +5,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -19,7 +20,7 @@ const formSchema = z.object({
 });
 
 export default function SignUpPage() {
-  const { signUp, isLoaded } = useSignUp();
+  const { signUp, isLoaded, setActive } = useSignUp();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,38 +47,39 @@ export default function SignUpPage() {
       });
   
       if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId })
         toast.success("Account created successfully!");
         router.push("/userDashboard");
       } else {
-        await result.prepareEmailAddressVerification({
+        await signUp.prepareEmailAddressVerification({
           strategy: "email_code"
         });
         router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
         toast.success("Check your email for verification code");
       }
     } catch (err) {
-      console.log("Detailed error:", err);
+      console.error("Sign-up error:", err);
       if (err.errors) {
         toast.error(err.errors[0].message);
       } else {
-        toast.error("Email already exists or invalid input");
+        toast.error("An error occurred during sign-up. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
     }
   };
-  
 
-  const signUpWith = async (strategy) => {
+  const signUpWithGoogle = async () => {
     if (!isLoaded) return;
     try {
       await signUp.authenticateWithRedirect({
-        strategy,
-        redirectUrl: "/userDashboard",
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
         redirectUrlComplete: "/userDashboard",
       });
     } catch (err) {
-      toast.error(`Could not connect to ${strategy}`);
+      console.error("Google sign-up error:", err);
+      toast.error("Could not connect to Google. Please try again.");
     }
   };
 
@@ -97,26 +99,13 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <div className="flex gap-4">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => signUpWith('oauth_google')}
-            className="flex-1 flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <FcGoogle className="w-5 h-5" />
-            Google
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => signUpWith('oauth_github')}
-            className="flex-1 flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <FaGithub className="w-5 h-5" />
-            GitHub
-          </motion.button>
-        </div>
+        <Button
+          onClick={signUpWithGoogle}
+          className="w-full flex items-center justify-center gap-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <FcGoogle className="w-5 h-5" />
+          Sign up with Google
+        </Button>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -134,9 +123,10 @@ export default function SignUpPage() {
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                   First Name
                 </label>
-                <input
+                <Input
                   {...form.register("firstName")}
-                  className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                  id="firstName"
+                  className="mt-1"
                   placeholder="Enter your first name"
                 />
                 {form.formState.errors.firstName && (
@@ -147,9 +137,10 @@ export default function SignUpPage() {
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
                   Last Name
                 </label>
-                <input
+                <Input
                   {...form.register("lastName")}
-                  className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                  id="lastName"
+                  className="mt-1"
                   placeholder="Enter your last name"
                 />
                 {form.formState.errors.lastName && (
@@ -162,9 +153,11 @@ export default function SignUpPage() {
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
               </label>
-              <input
+              <Input
                 {...form.register("email")}
-                className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                id="email"
+                type="email"
+                className="mt-1"
                 placeholder="name@example.com"
               />
               {form.formState.errors.email && (
@@ -176,10 +169,11 @@ export default function SignUpPage() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
-              <input
-                type="password"
+              <Input
                 {...form.register("password")}
-                className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                id="password"
+                type="password"
+                className="mt-1"
                 placeholder="Create a strong password"
               />
               {form.formState.errors.password && (
@@ -188,15 +182,13 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
+          <Button
             type="submit"
-            disabled={!isLoaded}
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+            disabled={!isLoaded || isSubmitting}
+            className="w-full"
           >
-            {!isLoaded ? "Loading..." : "Sign up"}
-          </motion.button>
+            {isSubmitting ? "Signing up..." : "Sign up"}
+          </Button>
         </form>
 
         <p className="mt-2 text-center text-sm text-gray-600">

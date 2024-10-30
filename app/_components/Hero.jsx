@@ -14,11 +14,11 @@ export default function Hero() {
   const { isSignedIn } = useAuth();
 
   return (
-    <div className="flex flex-col overflow-hidden mt-8 md:mt-14">
+    <div className="flex flex-col overflow-hidden mt-8 md:mt-6">
       <ContainerScroll
         titleComponent={
           <>
-            <h1 className="text-4xl lg:text-6xl font-extrabold pt-16">
+            <h1 className="text-4xl lg:text-6xl font-extrabold pt-9">
               Create Your Form <br />
             </h1>
             <strong className="text-3xl lg:text-5xl font-extrabold text-primary sm:block">
