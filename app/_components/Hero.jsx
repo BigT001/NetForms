@@ -2,13 +2,14 @@
 
 import React from "react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import Image from "next/image";
 import KeyFeatures from "./KeyFeatures";
+import Testimonials from "./Testimonials";
 import HowItWorks from "./HowItWorks";
 import LearnHow from "./LearnHow";
 import ScreenshotHome from "./ScreenshotHome";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import Footer from "./Footer";
 
 export default function Hero() {
   const { isSignedIn } = useAuth();
@@ -60,6 +61,8 @@ export default function Hero() {
         <KeyFeatures />
         <HowItWorks />
         <LearnHow />
+        <Testimonials/>
+        <Footer/>
       </div>
     </div>
   );

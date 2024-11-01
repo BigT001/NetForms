@@ -6,7 +6,7 @@ export default function KeyFeatures() {
     <div>
       <section id="features" className="w-full pt-32 ">
         <div className="container px-4 md:px-6">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center text-primary mb-12">
             Key Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -14,7 +14,7 @@ export default function KeyFeatures() {
               <Zap className="h-12 w-12 mb-4 text-primary" />
               <h3 className="text-xl font-bold mb-2">AI-Powered Generation</h3>
               <p className="text-gray-500">
-                Create complex forms in seconds with our advanced natural language processing technology.
+                Create complex forms in seconds with our advanced natural language processing technology powered by open AI.
               </p>
             </div>
 

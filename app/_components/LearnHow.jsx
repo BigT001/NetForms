@@ -4,7 +4,7 @@ import React from 'react'
 function LearnHow() {
   return (
     <div className="relative">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">
+        <h2 className="text-3xl text-secondary lg:px-80 font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">
         Watch Detailed video on how to use NetForms
         </h2>
           <HeroVideoDialog

@@ -41,12 +41,13 @@ export default function HowItWorks() {
   return (
     <section className="w-full">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+        <div className="text-center mb-16 ">
+          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl 
+          mb-4 bg-clip-text text-primary">
             How It Works
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Create professional forms in minutes with our AI-powered platform. No coding required.
+            Create professional forms in minutes with our AI-powered platform.
           </p>
         </div>
 

@@ -74,10 +74,10 @@ function Header() {
     <>
       <div className="border-b sticky z-[100] h-14 inset-x-0 top-0 w-full border-gray-200 bg-white/75 backdrop-blur-lg translation-all">
         <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-5">
-          <Link href="/" className="z-40 font-bold">
-            <span className="bg-primary font-extrabold text-white">Net</span>
-            <span className="font-extrabold text-secondary">Forms</span>
-          </Link>
+        <Link href="/" className="inline-block">
+              <span className="bg-primary px-2 py-1 font-extrabold text-white rounded-l-md">Net</span>
+              <span className="font-extrabold text-secondary px-2 py-1 border-y border-r rounded-r-md">Forms</span>
+            </Link>
 
           {isSignedIn ? (
             <div className="flex items-center gap-2">
