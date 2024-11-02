@@ -10,8 +10,8 @@ import Link from "next/link";
 
 function SideNav({ isOpen, setIsOpen }) {
   const menuList = [
-    { id: 1, name: "My Forms", icon: "📝", path: "/userDashboard" },
-    { id: 2, name: "Responses", icon: "💬", path: "/userDashboard/responses" },
+    { id: 1, name: "My Forms", icon: "", path: "/userDashboard" },
+    { id: 2, name: "Responses", icon: "", path: "/userDashboard/responses" },
     // { id: 3, name: "Analytics", icon: "📊", path: "/dashboard/analytics" },
     // { id: 4, name: "Upgrade", icon: "🚀", path: "/dashboard/upgrade" },
     // { id: 5, name: "Admin", icon: "👑", path: "/admin/adminDashboard" },
@@ -32,7 +32,7 @@ function SideNav({ isOpen, setIsOpen }) {
 
   return (
     <div
-      className={`fixed left-0 z-[1000] w-64 bg-white/75 backdrop-blur-lg shadow-md border-r transform ${
+      className={`fixed left-0 z-[1000] w-64 bg-white backdrop-blur-lg shadow-md border-r transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out lg:translate-x-0 top-14 h-[calc(100vh-3.5rem)]`}
     >
@@ -47,7 +47,7 @@ function SideNav({ isOpen, setIsOpen }) {
                       onClick={() => handleNavigation(menu.path)}
                       className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                         path === menu.path
-                          ? "bg-primary text-white"
+                          ? " text-black"
                           : "text-gray-700 hover:scale-105"
                       }`}
                     >

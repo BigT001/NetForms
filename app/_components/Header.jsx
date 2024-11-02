@@ -18,7 +18,6 @@ function Header() {
   const { signOut, openUserProfile } = useClerk();
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
   
-  
 
   useEffect(() => {
     console.log(path);
@@ -72,7 +71,7 @@ function Header() {
 
   return (
     <>
-      <div className="border-b sticky z-[100] h-14 inset-x-0 top-0 w-full border-gray-200 bg-white/75 backdrop-blur-lg translation-all">
+      <div className="border-b sticky z-[100] h-14 inset-x-0 top-0 w-full border-gray-200 bg-white backdrop-blur-lg translation-all">
         <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-5">
         <Link href="/" className="inline-block">
               <span className="bg-primary px-2 py-1 font-extrabold text-white rounded-l-md">Net</span>
