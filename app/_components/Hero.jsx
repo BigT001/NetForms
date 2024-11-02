@@ -60,7 +60,7 @@ export default function Hero() {
       <div className="lg:px-10 md:px-24 space-y-32">
         <KeyFeatures />
         <HowItWorks />
-        <LearnHow />
+        {/* <LearnHow /> */}
         <Testimonials/>
         <Footer/>
       </div>
