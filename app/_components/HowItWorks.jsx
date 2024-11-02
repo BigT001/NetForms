@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, PenLine, Sparkles, Settings, Share2, Download } from 'lucide-react';
 
@@ -38,30 +38,60 @@ export default function HowItWorks() {
     }
   ];
 
+  const cardVariants = {
+    hidden: { 
+      opacity: 0,
+      y: 100
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
     <section className="w-full">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
-        <div className="text-center mb-16 ">
-          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl 
-          mb-4 bg-clip-text text-primary">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.3 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+        >
+          <h2 className="text-5xl font-bold tracking-tight sm:text-5xl mb-4 bg-clip-text text-secondary">
             How It Works
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Create professional forms in minutes with our AI-powered platform.
           </p>
-        </div>
+        </motion.div>
 
         <div className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {cards.slice(0, 3).map((card, index) => (
-              <div
+              <motion.div
                 key={index}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ delay: index * 0.3, duration: 0.8 }}
+                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                 className={`${card.color} rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 w-full`}
               >
                 <div className="flex flex-col h-full">
-                  <div className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6">
+                  <motion.div 
+                    className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6"
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                  >
                     {card.icon}
-                  </div>
+                  </motion.div>
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
                       {index + 1}
@@ -70,20 +100,30 @@ export default function HowItWorks() {
                   </div>
                   <p className="text-gray-700 flex-grow">{card.description}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             {cards.slice(3).map((card, index) => (
-              <div
+              <motion.div
                 key={index + 3}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ delay: (index + 3) * 0.3, duration: 0.8 }}
+                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                 className={`${card.color} rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 w-full`}
               >
                 <div className="flex flex-col h-full">
-                  <div className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6">
+                  <motion.div 
+                    className="bg-white rounded-xl p-3 w-fit shadow-sm mb-6"
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                  >
                     {card.icon}
-                  </div>
+                  </motion.div>
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
                       {index + 4}
@@ -92,7 +132,7 @@ export default function HowItWorks() {
                   </div>
                   <p className="text-gray-700 flex-grow">{card.description}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
