@@ -87,7 +87,7 @@ export default function CreateForm({ setIsOpen }) {
 
   return (
     <div>
-      <Button onClick={handleOpenDialog} className="w-44">
+      <Button onClick={handleOpenDialog} className="w-full">
         + Create Form
       </Button>
       <Dialog open={openDialog} onOpenChange={setOpenDialog} className="">

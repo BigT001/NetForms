@@ -27,12 +27,12 @@ function Responses() {
   }
 
   return (
-    <div className='p-10'>
+    <div className='p-5 md:p-10'>
       <h2 className="font-bold text-2xl flex items-center justify-between">
         Responses
       </h2>
 
-      <div className='grid grid-cols-2 lg:grid-cols-3 gap-5'>
+      <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-5 w-full'>
         {formList && formList.map((form, index) => (
           <FormListItemsResponse
             key={form.id}
