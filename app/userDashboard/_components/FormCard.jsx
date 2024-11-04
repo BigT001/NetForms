@@ -77,7 +77,8 @@ function FormCard({ form, user, onDelete }) {
           <div className="flex justify-between">
             <Button
               size="sm"
-              className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+              className="flex gap-2 bg-slate-white border border-black 
+              text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
               onClick={handleEdit}
             >
               <Edit className="h-4 w-4" />
@@ -86,15 +87,16 @@ function FormCard({ form, user, onDelete }) {
 
             <RWebShare
               data={{
-                text: `${formSubheading}, Build your forms in seconds with NetForms`,
+                // text: `${formSubheading}, Build your forms in seconds with NetForms`,
                 url: `${process.env.NEXT_PUBLIC_BASE_URL}netform/${form.id}`,
-                title: formTitle,
+                // title: formTitle,
               }}
               onClick={() => console.log("shared successfully!")}
             >
               <Button
                 size="sm"
-                className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+                className="flex gap-2 bg-slate-white border border-black text-black 
+                hover:bg-transparent hover:border-b-2 font-semi-bold"
               >
                 <Share2 className="h-4 w-4" />
                 Share

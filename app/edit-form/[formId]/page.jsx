@@ -288,9 +288,9 @@ function EdithForm({ params }) {
           </Link>
           <RWebShare
             data={{
-              text: `${formSubheading}, Build your forms in seconds with NetForms`,
+              // text: `${formSubheading}, Build your forms in seconds with NetForms`,
               url: `${process.env.NEXT_PUBLIC_BASE_URL}netform/${record?.id}`,
-              title: formTitle,
+              // title: formTitle,
             }}
             onClick={() => console.log("shared successfully!")}
           >
