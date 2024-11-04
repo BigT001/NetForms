@@ -16,7 +16,6 @@ function SideNav({ isOpen, setIsOpen }) {
     // { id: 4, name: "Upgrade", icon: "🚀", path: "/dashboard/upgrade" },
     // { id: 5, name: "Admin", icon: "👑", path: "/admin/adminDashboard" },
   ];
-  
 
   const path = usePathname();
   const router = useRouter();
@@ -32,44 +31,46 @@ function SideNav({ isOpen, setIsOpen }) {
 
   return (
     <div
-      className={`fixed left-0 z-[1000] w-64 bg-white backdrop-blur-lg shadow-md border-r transform ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
+      className={`fixed left-0 z-[1000] w-48 md:w-64 bg-white backdrop-blur-lg shadow-md 
+      border-r transform ${
+      isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out lg:translate-x-0 top-14 h-[calc(100vh-3.5rem)]`}
     >
       <div className="h-full flex flex-col">
+        <div className="flex items-center mt-2 border-b-2 justify-between mb-2 lg:hidden">
+          <h1 className="ml-5 font-semibold text-xl">Dashboard</h1>
+          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+            <X size={20} />
+          </Button>
+        </div>
+
         <nav className="flex-grow overflow-y-auto">
-          <ul className="p-4 space-y-2">
+          <ul className="ml-2 space-y-2 md:mt-5">
             {menuList.map((menu, index) => (
               <li key={menu.id}>
                 {index === 0 && (
                   <div className="flex items-center justify-between mb-2 lg:hidden">
                     <button
                       onClick={() => handleNavigation(menu.path)}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                      className={`flex items-center hover:text-secondary gap-3 
+                      rounded-md transition-colors ${
                         path === menu.path
-                          ? " text-black"
-                          : "text-gray-700 hover:scale-105"
+                          // ? " text-black"
+                          // : "text-gray-700 hover:scale-105"
                       }`}
                     >
                       <span className="text-xl">{menu.icon}</span>
-                      <span className="font-medium">{menu.name}</span>
+                      <span className="">{menu.name}</span>
                     </button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <X size={20} />
-                    </Button>
                   </div>
                 )}
                 {(index !== 0 || !isOpen) && (
                   <button
                     onClick={() => handleNavigation(menu.path)}
-                    className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                    className={`w-full flex items-center gap-3 hover:text-secondary rounded-md transition-colors ${
                       path === menu.path
-                        ? "bg-primary text-white"
-                        : "text-gray-700 hover:scale-105"
+                        // ? "bg-primary text-white"
+                        // : "text-gray-700 hover:scale-105"
                     }`}
                   >
                     <span className="text-xl">{menu.icon}</span>
@@ -80,22 +81,19 @@ function SideNav({ isOpen, setIsOpen }) {
             ))}
           </ul>
         </nav>
-         <div className="p-4 border-t">
-        <div className="w-full mb-4 text-center">
-          <CreateForm setIsOpen={setIsOpen} />
-        </div>
+        <div className="p-4 border-t">
+          <div className="w-full mb-4 text-center">
+            <CreateForm setIsOpen={setIsOpen} />
+          </div>
 
-
-        <div>
+          {/* <div>
             <p className="text-gray-700 text-center">
               Developer: <br />
               <Link href="www.samuelstanley.com" target="_blank">
-              <span className="text-gray-600">
-              Samuel Stanley
-            </span>
+                <span className="text-gray-600">Samuel Stanley</span>
               </Link>
-            </p> 
-        </div>
+            </p>
+          </div> */}
 
           {/* <div className="mb-2">
             <progress
