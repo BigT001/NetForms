@@ -31,7 +31,7 @@ function SideNav({ isOpen, setIsOpen }) {
 
   return (
     <div
-      className={`fixed left-0 z-[1000] w-48 md:w-64 bg-white backdrop-blur-lg shadow-md 
+      className={`fixed h-full left-0 z-[1000] w-52 md:w-64 bg-white backdrop-blur-lg shadow-md 
       border-r transform ${
       isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out lg:translate-x-0 top-14 h-[calc(100vh-3.5rem)]`}
@@ -82,7 +82,7 @@ function SideNav({ isOpen, setIsOpen }) {
           </ul>
         </nav>
         <div className="p-4 border-t">
-          <div className="w-full mb-4 text-center">
+          <div className="w-full mb-24 text-center">
             <CreateForm setIsOpen={setIsOpen} />
           </div>
 
