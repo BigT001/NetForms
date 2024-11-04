@@ -65,6 +65,7 @@ function Header() {
   };
 
   const isUserDashboardPage = path === '/userDashboard';
+  const isResponsePage = path === '/userDashboard/responses';
   const isHomePage = path === '/';
   const isEditFormPage = path.startsWith('/edithForm/');
   
@@ -73,10 +74,10 @@ function Header() {
     <>
       <div className="border-b sticky z-[100] h-14 inset-x-0 top-0 w-full border-gray-200 bg-white backdrop-blur-lg translation-all">
         <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-5">
-        <Link href="/" className="inline-block">
-              <span className="bg-primary px-2 py-1 font-extrabold text-white rounded-l-md">Net</span>
-              <span className="font-extrabold text-secondary px-2 py-1 border-y border-r rounded-r-md">Forms</span>
-            </Link>
+          <Link href="/" className="inline-block">
+            <span className="bg-primary px-2 py-1 font-extrabold text-white rounded-l-md">Net</span>
+            <span className="font-extrabold text-secondary px-2 py-1 border-y border-r rounded-r-md">Forms</span>
+          </Link>
 
           {isSignedIn ? (
             <div className="flex items-center gap-2">
@@ -88,7 +89,7 @@ function Header() {
                 </div>
               )}
               <div className="flex items-center gap-2">
-                {isUserDashboardPage && (
+                {(isUserDashboardPage || isResponsePage) && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -136,11 +137,11 @@ function Header() {
         </div>
       </div>
 
-      {isUserDashboardPage && (
+      {(isUserDashboardPage || isResponsePage) && (
         <SideNav isOpen={isSideNavOpen} setIsOpen={setIsSideNavOpen} />
       )}
 
-      {isSideNavOpen && (
+{isSideNavOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={toggleSideNav}
