@@ -109,9 +109,9 @@ function LiveNetForm({ params }) {
         )}
       </div>
 
-      <div className="grid gap-2 text-center justify-center">
+      <div className="grid gap-2 text-center justify-center mt-4">
       
-        <span className="text-md text-gray-600 mt-1">
+        <span className="text-md text-gray-400 mt-10 mb-2">
           Create your own AI-powered form in seconds click the link below
         </span>
        

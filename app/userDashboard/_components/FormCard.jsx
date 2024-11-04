@@ -87,7 +87,7 @@ function FormCard({ form, user, onDelete }) {
             <RWebShare
               data={{
                 text: `${formSubheading}, Build your forms in seconds with NetForms`,
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}netforms/${form.id}`,
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}netform/${form.id}`,
                 title: formTitle,
               }}
               onClick={() => console.log("shared successfully!")}

@@ -271,7 +271,8 @@ function EdithForm({ params }) {
 
         <div className="flex gap-2 items-center">
           <Button
-            className="flex sm:hidden gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+            className="flex sm:hidden gap-2 bg-slate-white border border-black 
+            text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
             variant="ghost"
             size="icon"
             onClick={toggleControl}
@@ -279,7 +280,8 @@ function EdithForm({ params }) {
             <Settings size={24} />
           </Button>
           <Link href={"/netform/" + record?.id} target="_blank">
-            <Button className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold">
+            <Button className="flex gap-2 bg-slate-white border border-black text-black 
+            hover:bg-transparent hover:border-b-2 font-semi-bold">
               <SquareArrowUpRight className="h-5 w-5" />
               View
             </Button>
@@ -287,14 +289,15 @@ function EdithForm({ params }) {
           <RWebShare
             data={{
               text: `${formSubheading}, Build your forms in seconds with NetForms`,
-              url: `${process.env.NEXT_PUBLIC_BASE_URL}netforms/${record?.id}`,
+              url: `${process.env.NEXT_PUBLIC_BASE_URL}netform/${record?.id}`,
               title: formTitle,
             }}
             onClick={() => console.log("shared successfully!")}
           >
             <Button
               size="sm"
-              className="flex gap-2 bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
+              className="flex gap-2 bg-slate-white border border-black text-black 
+              hover:bg-transparent hover:border-b-2 font-semi-bold"
             >
               <Share2 className="h-4 w-4" />
               Share
