@@ -259,7 +259,7 @@ function EdithForm({ params }) {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 lg:pl-[calc(25%+2rem)]">
+    <div className="w-full lg:px-8 lg:pl-[calc(25%+2rem)]">
       <div className="flex justify-between items-center mt-2 mb-4">
         <Button
           variant="ghost"
@@ -318,7 +318,8 @@ function EdithForm({ params }) {
         </div>
         <div
           className={`
-            fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+            fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform 
+            transition-transform duration-300 ease-in-out
             ${isControlVisible ? "translate-x-0" : "-translate-x-full"}
             sm:hidden
           `}

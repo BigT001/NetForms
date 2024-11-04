@@ -74,7 +74,7 @@ function LiveNetForm({ params }) {
 
   return (
     <div 
-      className="flex justify-center items-center p-5 px-10 lg:px-80 md:px-60 min-h-screen bg-cover bg-center"
+      className="flex justify-center items-center md:p-5 md:px-10 lg:px-80 min-h-screen bg-cover bg-center"
       style={{
         backgroundImage: record?.background ? `url(${record.background})` : 'none',
       }}
@@ -94,7 +94,7 @@ function LiveNetForm({ params }) {
         )}
       </div>
 
-      <div className="flex items-center fixed bottom-5 left-5">
+      {/* <div className="flex items-center fixed bottom-5 left-5">
         <Image
           src="/logo.png"
           width={120}
@@ -102,7 +102,7 @@ function LiveNetForm({ params }) {
           alt="Logo"
           priority
         />
-      </div>
+      </div> */}
     </div>
   )
 }
