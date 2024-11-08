@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import moment from "moment";
 import { toast } from "react-hot-toast";
+import ShareButton from '@/app/_components/ShareButton';
 
 const extractStringValue = (obj) => {
   if (typeof obj === "string") return obj;
@@ -85,23 +86,12 @@ function FormCard({ form, user, onDelete }) {
               Edit
             </Button>
 
-            <RWebShare
-              data={{
-                // text: `${formSubheading}, Build your forms in seconds with NetForms`,
-                url: `${process.env.NEXT_PUBLIC_BASE_URL}netform/${form.id}`,
-                // title: formTitle,
-              }}
-              onClick={() => console.log("shared successfully!")}
-            >
-              <Button
-                size="sm"
-                className="flex gap-2 bg-slate-white border border-black text-black 
-                hover:bg-transparent hover:border-b-2 font-semi-bold"
-              >
-                <Share2 className="h-4 w-4" />
-                Share
-              </Button>
-            </RWebShare>
+            <ShareButton 
+             formId={form.id}
+             formTitle={formTitle}
+             formSubheading={formSubheading}
+             
+            />     
           </div>
         </div>
       </div>

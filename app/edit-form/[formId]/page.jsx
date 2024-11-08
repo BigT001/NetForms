@@ -14,6 +14,7 @@ import Control from "../_components/Control";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { RWebShare } from "react-web-share";
+import ShareButton from "@/app/_components/ShareButton";
 
 function EdithForm({ params }) {
   const { user } = useUser();
@@ -286,23 +287,11 @@ function EdithForm({ params }) {
               View
             </Button>
           </Link>
-          <RWebShare
-            data={{
-              // text: `${formSubheading}, Build your forms in seconds with NetForms`,
-              url: `${process.env.NEXT_PUBLIC_BASE_URL}netform/${record?.id}`,
-              // title: formTitle,
-            }}
-            onClick={() => console.log("shared successfully!")}
-          >
-            <Button
-              size="sm"
-              className="flex gap-2 bg-slate-white border border-black text-black 
-              hover:bg-transparent hover:border-b-2 font-semi-bold"
-            >
-              <Share2 className="h-4 w-4" />
-              Share
-            </Button>
-          </RWebShare>
+          <ShareButton 
+             formId={params.formId}
+             formTitle={formTitle}
+             formSubheading={formSubheading}
+            />     
         </div>
       </div>
 
