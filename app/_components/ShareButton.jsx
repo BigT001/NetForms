@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 
 export default function ShareButton({ formId, formTitle, formSubheading }) {
   const [copied, setCopied] = useState(false)
-  const [shareDescription, setShareDescription] = useState(`Say something about your form: ${formTitle}`)
+  const [shareDescription, setShareDescription] = useState(`Say something about your form 😀`)
   const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}netform/${formId}`
 
   const handleCopy = async () => {
@@ -33,7 +33,9 @@ export default function ShareButton({ formId, formTitle, formSubheading }) {
     <Button
       variant="outline"
       onClick={onClick}
-      className={`flex flex-col items-center justify-center p-4 h-auto text-center transition-all duration-300 hover:scale-105 hover:bg-${color}-50 hover:text-${color}-600 hover:border-${color}-200 rounded-xl`}
+      className={`flex flex-col items-center justify-center p-4 h-auto text-center 
+      transition-all duration-300 hover:scale-105 hover:bg-${color}-50 hover:text-${color}-600 
+      hover:border-${color}-200 rounded-xl`}
     >
       <div className="mb-3">
         {React.cloneElement(icon, { className: "h-10 w-10" })}
