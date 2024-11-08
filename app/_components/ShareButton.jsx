@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 
 export default function ShareButton({ formId, formTitle, formSubheading }) {
   const [copied, setCopied] = useState(false)
-  const [shareDescription, setShareDescription] = useState(`Check out this form: ${formTitle}`)
+  const [shareDescription, setShareDescription] = useState(`Say something about your form: ${formTitle}`)
   const shareUrl = `${process.env.NEXT_PUBLIC_BASE_URL}netform/${formId}`
 
   const handleCopy = async () => {
