@@ -90,7 +90,6 @@ function FormCard({ form, user, onDelete }) {
              formId={form.id}
              formTitle={formTitle}
              formSubheading={formSubheading}
-             
             />     
           </div>
         </div>

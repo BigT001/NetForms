@@ -5,6 +5,7 @@ import { eq, sql } from 'drizzle-orm';
 import { Loader2, Download, ExternalLink } from 'lucide-react';
 import React, { useState, useEffect } from 'react'
 import { parse } from 'csv-parse/sync';
+import Link from 'next/link';
 
 function FormListItemsResponse({ jsonForm, formRecord }) {
   const [loading, setLoading] = useState(false);
@@ -150,6 +151,7 @@ function FormListItemsResponse({ jsonForm, formRecord }) {
 
     return multipartRequestBody;
   };
+  
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 my-4">
@@ -161,9 +163,12 @@ function FormListItemsResponse({ jsonForm, formRecord }) {
     <hr className="border-t border-gray-200" />
   
     <div className="flex justify-between items-center mt-4">
-      <h2 className='text-sm'>
-        <strong>{responseCount}</strong> {responseCount === 1 ? 'Response' : 'Responses'}
-      </h2>
+      <Link href="/userDashboard/netSheet">
+        <h2 className='text-sm cursor-pointer hover:text-primary transition-colors'>
+          <strong>{responseCount}</strong> {responseCount === 1 ? 'Response' : 'Responses'}
+        </h2>
+      </Link>
+
   
       <div className="space-x-2">
         <Button
