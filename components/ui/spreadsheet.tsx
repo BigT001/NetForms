@@ -5,11 +5,19 @@ import { useTheme } from 'next-themes';
 import { Plus, Minus, ArrowUpDown, ArrowLeftRight, Merge, Copy, Clipboard, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, ChevronDown, Filter, SortAsc, SortDesc, BarChart2, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+// import { Select } from '@/components/ui/select';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 
 interface Cell {
   value: string;
@@ -357,7 +365,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
           tempElement.style.fontSize = `${row[index].style?.fontSize || 14}px`;
           tempElement.style.fontWeight = row[index].style?.bold ? 'bold' : 'normal';
           tempElement.style.fontStyle = row[index].style?.italic ? 'italic' : 'normal';
-          tempElement.textContent = content;
+          tempElement.textContent = content ?? '';
           document.body.appendChild(tempElement);
           const width = tempElement.offsetWidth;
           document.body.removeChild(tempElement);
@@ -727,11 +735,19 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         onChange={(e) => updateCellStyle({ backgroundColor: e.target.value })}
         className="w-8 h-8 p-0"
       />
-      <Select
-        options={[12, 14, 16, 18, 20, 24, 28, 32].map(size => ({ value: size, label: `${size}px` }))}
-        onChange={(value) => updateCellStyle({ fontSize: parseInt(value) })}
-        placeholder="Font Size"
-      />
+      <Select onValueChange={(value) => updateCellStyle({ fontSize: parseInt(value) })}>
+  <SelectTrigger>
+    <SelectValue placeholder="Font Size" />
+  </SelectTrigger>
+  <SelectContent>
+    {[12, 14, 16, 18, 20, 24, 28, 32].map(size => (
+      <SelectItem key={size} value={size.toString()}>
+        {size}px
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+
       <Button onClick={toggleCellLock}>
         {selection && sheets.find(sheet => sheet.id === activeSheetId)?.data[selection.start.row][selection.start.col].locked ? (
           <Unlock className="w-4 h-4 mr-1" />
