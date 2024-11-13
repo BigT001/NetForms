@@ -1,4 +1,4 @@
-import { Spreadsheet } from '@/components/ui/spreadsheet';
+import { Spreadsheet } from '@/app/userDashboard/netSheet/spreadsheet';
 
 export default function NetSheet() {
   return (
