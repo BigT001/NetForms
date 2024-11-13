@@ -163,11 +163,18 @@ function FormListItemsResponse({ jsonForm, formRecord }) {
     <hr className="border-t border-gray-200" />
   
     <div className="flex justify-between items-center mt-4">
-      <Link href="/userDashboard/netSheet">
-        <h2 className='text-sm cursor-pointer hover:text-primary transition-colors'>
-          <strong>{responseCount}</strong> {responseCount === 1 ? 'Response' : 'Responses'}
-        </h2>
-      </Link>
+    // Update the Link to pass form data
+    <Link 
+      href={{
+        pathname: "/userDashboard/netSheet",
+        query: { formId: formRecord.id }
+      }}
+    >
+      <h2 className='text-sm cursor-pointer hover:text-primary transition-colors'>
+        <strong>{responseCount}</strong> {responseCount === 1 ? 'Response' : 'Responses'}
+      </h2>
+    </Link>
+
 
   
       <div className="space-x-2">
@@ -179,14 +186,14 @@ function FormListItemsResponse({ jsonForm, formRecord }) {
         >
           {loading ? <Loader2 className='animate-spin'/> : <><Download className="w-4 h-4 mr-2" /></>}
         </Button>
-        <Button
+        {/* <Button
           size="sm"
           onClick={viewInGoogleSheets}
           className="bg-slate-white border border-black text-black hover:bg-transparent hover:border-b-2 font-semi-bold"
         >
           <ExternalLink className="w-4 h-4 mr-2" />
           Sheet
-        </Button>
+        </Button> */}
       </div>
     </div>
   </div>

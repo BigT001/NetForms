@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Minus, Merge, Copy, Clipboard, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, ChevronDown, Filter, SortAsc, SortDesc, BarChart2, Lock, Unlock } from 'lucide-react';
@@ -41,7 +41,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onAddFilter,
   onSortColumn,
   onCreateChart,
-  onResizeColumn,
+  // onResizeColumn,
 }) => {
   const activeSheet = sheets.find(sheet => sheet.id === activeSheetId);
   const isSelectionActive = selection !== null;

@@ -90,7 +90,7 @@ const Grid: React.FC<GridProps> = ({
         className={cn(
           "absolute border-r border-b border-gray-200",
           isSelected && "bg-blue-100",
-          isActive && "ring-2 ring-blue-500",
+          isActive && "ring-2 ring-primary",
           cell.style?.backgroundColor && `bg-${cell.style.backgroundColor}-100`
         )}
         style={{
@@ -124,7 +124,7 @@ const Grid: React.FC<GridProps> = ({
 
   const renderColumnHeaders = useCallback(() => {
     return (
-      <>
+      <div className="sticky top-0 left-0 z-20">
         <div
           className="absolute border-r-2 border-b-2 border-gray-300 bg-gray-100"
           style={{
@@ -132,7 +132,7 @@ const Grid: React.FC<GridProps> = ({
             top: 0,
             width: DEFAULT_COLUMN_WIDTH,
             height: DEFAULT_ROW_HEIGHT,
-            zIndex: 3,
+            zIndex: 30,
           }}
         />
         {Array.from({ length: TOTAL_COLUMNS }, (_, col) => (
@@ -144,38 +144,49 @@ const Grid: React.FC<GridProps> = ({
               top: 0,
               width: DEFAULT_COLUMN_WIDTH,
               height: DEFAULT_ROW_HEIGHT,
-              zIndex: 2,
+              zIndex: 20,
             }}
           >
             {getColumnLabel(col)}
           </div>
         ))}
-      </>
+      </div>
     );
   }, []);
 
   const renderRowHeaders = useCallback(() => {
     return (
-      <>
+      <div 
+        className="z-20"
+        style={{ 
+          position: 'fixed',
+          left: gridRef.current?.getBoundingClientRect().left || 0,
+          top: gridRef.current?.getBoundingClientRect().top || 0,
+          pointerEvents: 'none'
+        }}
+      >
         {Array.from({ length: visibleRange.endRow - visibleRange.startRow }, (_, i) => i + visibleRange.startRow).map((row) => (
           <div
             key={`row-${row}`}
-            className="absolute border-r-2 border-b-2 border-gray-300 bg-gray-100 flex items-center justify-center text-xs font-semibold"
+            className="border-r-2 border-b-2 border-gray-300 bg-gray-100 flex items-center justify-center text-xs font-semibold"
             style={{
+              position: 'absolute',
               left: 0,
-              top: (row + 1) * DEFAULT_ROW_HEIGHT,
+              top: (row + 1) * DEFAULT_ROW_HEIGHT - (gridRef.current?.scrollTop || 0),
               width: DEFAULT_COLUMN_WIDTH,
               height: DEFAULT_ROW_HEIGHT,
-              zIndex: 2,
+              zIndex: 20,
+              pointerEvents: 'auto'
             }}
           >
             {row + 1}
           </div>
         ))}
-      </>
+      </div>
     );
-  }, [visibleRange]);
-
+  }, [visibleRange, gridRef.current?.scrollTop, gridRef.current?.getBoundingClientRect().top, gridRef.current?.getBoundingClientRect().left]);
+  
+  
   return (
     <div className="w-full h-screen relative overflow-hidden">
       <div
@@ -192,8 +203,12 @@ const Grid: React.FC<GridProps> = ({
             height: (TOTAL_ROWS + 1) * DEFAULT_ROW_HEIGHT,
           }}
         >
-          {renderColumnHeaders()}
-          {renderRowHeaders()}
+          <div className="sticky top-0 z-10">
+            {renderColumnHeaders()}
+          </div>
+          <div className="sticky left-0 z-10">
+            {renderRowHeaders()}
+          </div>
           {Array.from({ length: visibleRange.endRow - visibleRange.startRow }, (_, i) => i + visibleRange.startRow).map((row) =>
             Array.from({ length: visibleRange.endCol - visibleRange.startCol }, (_, j) => j + visibleRange.startCol).map((col) =>
               renderCell(row, col)
@@ -202,7 +217,7 @@ const Grid: React.FC<GridProps> = ({
         </div>
       </div>
     </div>
-  );
+  );  
 };
 
 export default Grid;

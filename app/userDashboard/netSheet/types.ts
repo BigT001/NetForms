@@ -51,3 +51,22 @@ export interface Cell {
     name: string;
     data: Cell[][];
   }
+
+  export interface GridProps {
+    sheets: Sheet[];
+    activeSheetId: string;
+    selection: Selection | null;
+    activeCell: { row: number; col: number } | null;
+    readOnly: boolean;
+    onCellSelect: (row: number, col: number, isShiftKey: boolean) => void;
+    onCellChange: (row: number, col: number, value: string) => void;
+    rowHeights: number[];
+    colWidths: number[];
+    visibleRange: {
+      startRow: number;
+      endRow: number;
+      startCol: number;
+      endCol: number;
+    };
+  }
+  

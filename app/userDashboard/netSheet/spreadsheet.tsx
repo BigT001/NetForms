@@ -88,18 +88,16 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
       )}
       
       <div className="flex-1 flex">
-        <Grid
-          sheets={sheets}
-          activeSheetId={activeSheetId}
-          selection={selection}
-          activeCell={activeCell}
-          readOnly={readOnly}
-          onCellSelect={handleCellSelect}s
-          onCellChange={handleCellChange}
-          rowHeights={rowHeights}
-          colWidths={colWidths}
-          visibleRange={visibleRange}
-        />
+      <Grid
+        sheets={sheets}
+        activeSheetId={activeSheetId}
+        selection={selection}
+        activeCell={activeCell}
+        readOnly={readOnly}
+        onCellSelect={handleCellSelect}
+        onCellChange={handleCellChange}
+      />
+
         
         <SheetTabs
           sheets={sheets}
@@ -116,4 +114,5 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     </div>
   );
 };
+
 export default Spreadsheet;
