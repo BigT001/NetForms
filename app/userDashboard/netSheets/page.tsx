@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { db } from "@/configs";
 import { formSubmissions, jsonForms } from "@/configs/schema";
@@ -9,9 +9,9 @@ import ResponseSpreadsheet from './_components/ResponseSpreadsheet';
 import { ArrowLeft } from 'lucide-react';
 
 interface FormResponse {
-  formTitle?: string;
-  formSubheading?: string;
-  [key: string]: any;
+    formTitle?: string;
+    formSubheading?: string;
+    [key: string]: any;
 }
 
 const NetSheet = () => {
@@ -21,28 +21,12 @@ const NetSheet = () => {
     const [responses, setResponses] = useState<FormResponse[]>([]);
     const [formTitle, setFormTitle] = useState('');
     const [formSubheading, setFormSubheading] = useState('');
-    const mainTableRef = useRef<HTMLDivElement>(null);
-    const headerTableRef = useRef<HTMLDivElement>(null);
-    const leftColumnRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (formId) {
             fetchFormAndResponses();
         }
     }, [formId]);
-
-    useEffect(() => {
-        const mainTable = mainTableRef.current;
-        const handleScroll = () => {
-            if (mainTable && headerTableRef.current && leftColumnRef.current) {
-                headerTableRef.current.scrollLeft = mainTable.scrollLeft;
-                leftColumnRef.current.scrollTop = mainTable.scrollTop;
-            }
-        };
-
-        mainTable?.addEventListener('scroll', handleScroll);
-        return () => mainTable?.removeEventListener('scroll', handleScroll);
-    }, []);
 
     const fetchFormAndResponses = async () => {
         try {
@@ -75,7 +59,7 @@ const NetSheet = () => {
         <div className="h-[calc(100vh-80px)] relative bg-white">
             <div className="absolute inset-0">
                 <div className="sticky top-0 z-10 bg-white p-4 md:hidden">
-                    <button 
+                    <button
                         onClick={() => router.back()}
                         className="p-2 hover:bg-gray-100 rounded-full"
                     >
@@ -93,4 +77,5 @@ const NetSheet = () => {
         </div>
     );
 };
+
 export default NetSheet;
