@@ -71,6 +71,7 @@ const NetSheet = () => {
                         responses={responses}
                         formTitle={formTitle}
                         formSubheading={formSubheading}
+                        formId={formId || ''} // Pass formId to ResponseSpreadsheet
                     />
                 </div>
             </div>
@@ -79,3 +80,4 @@ const NetSheet = () => {
 };
 
 export default NetSheet;
+

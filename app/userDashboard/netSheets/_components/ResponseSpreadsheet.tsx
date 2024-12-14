@@ -5,12 +5,14 @@ interface ResponseSpreadsheetProps {
   responses: any[];
   formTitle: string;
   formSubheading: string;
+  formId: string; // Add formId to props
 }
 
 const ResponseSpreadsheet = ({
   responses,
   formTitle,
   formSubheading,
+  formId, // Add formId to destructured props
 }: ResponseSpreadsheetProps) => {
   const [localResponses, setLocalResponses] = useState(responses);
   const [editingCell, setEditingCell] = useState<{
@@ -18,8 +20,8 @@ const ResponseSpreadsheet = ({
     col: number;
   } | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [columnWidths, setColumnWidths] = useLocalStorage<{ [key: number]: number }>("columnWidths", {});
-  const [rowHeights, setRowHeights] = useLocalStorage<{ [key: number]: number }>("rowHeights", {});
+  const [columnWidths, setColumnWidths] = useLocalStorage<{ [key: number]: number }>(`columnWidths_${formId}`, {});
+  const [rowHeights, setRowHeights] = useLocalStorage<{ [key: number]: number }>(`rowHeights_${formId}`, {});
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartX, setResizeStartX] = useState(0);
   const [resizingColumn, setResizingColumn] = useState<number | null>(null);
@@ -60,18 +62,18 @@ const ResponseSpreadsheet = ({
 
   const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!isResizing || resizingColumn === null) return;
-    
+   
     const diff = e.clientX - resizeStartX;
     const newWidth = Math.max(
       MIN_COLUMN_WIDTH,
       (columnWidths[resizingColumn] || DEFAULT_COLUMN_WIDTH) + diff
     );
-    
+   
     const elements = getCachedElements(resizingColumn, 'col');
     elements.forEach(el => {
       el.style.width = `${newWidth}px`;
     });
-    
+   
     setResizeStartX(e.clientX);
     setColumnWidths(prev => ({ ...prev, [resizingColumn]: newWidth }));
   }, [isResizing, resizingColumn, columnWidths, setColumnWidths]);
@@ -79,13 +81,13 @@ const ResponseSpreadsheet = ({
   const handleColumnResizeDoubleClick = useCallback((e: React.MouseEvent, colIndex: number) => {
     e.preventDefault();
     const newWidth = calculateColumnWidth(colIndex);
-    
+   
     // Instant visual update
     const elements = getCachedElements(colIndex, 'col');
     elements.forEach(el => {
       el.style.width = `${newWidth}px`;
     });
-    
+   
     // State update
     setColumnWidths(prev => ({ ...prev, [colIndex]: newWidth }));
   }, [calculateColumnWidth, setColumnWidths]);
@@ -112,11 +114,11 @@ const ResponseSpreadsheet = ({
       if (newResponses[editingCell.row]) {
         newResponses[editingCell.row][headers[editingCell.col]] = editValue;
         setLocalResponses(newResponses);
-        localStorage.setItem('spreadsheetResponses', JSON.stringify(newResponses));
+        localStorage.setItem(`spreadsheetResponses_${formId}`, JSON.stringify(newResponses));
       }
       setEditingCell(null);
     }
-  }, [editingCell, editValue, headers, localResponses]);
+  }, [editingCell, editValue, headers, localResponses, formId]);
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -125,13 +127,13 @@ const ResponseSpreadsheet = ({
   }, [handleCellBlur]);
 
   useEffect(() => {
-    const savedResponses = localStorage.getItem('spreadsheetResponses');
+    const savedResponses = localStorage.getItem(`spreadsheetResponses_${formId}`);
     if (savedResponses) {
       setLocalResponses(JSON.parse(savedResponses));
     } else {
       setLocalResponses(responses);
     }
-  }, [responses]);
+  }, [responses, formId]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -271,3 +273,4 @@ const ResponseSpreadsheet = ({
 };
 
 export default ResponseSpreadsheet;
+
