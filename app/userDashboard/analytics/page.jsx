@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Line, Pie, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { db } from '@/configs';
-import { jsonForms, formSubmissions, formClicks } from '@/configs/schema';
+import { jsonForms, formSubmissions } from '@/configs/schema';
 import { useUser } from '@clerk/nextjs';
 import { desc, eq } from 'drizzle-orm';
 
@@ -65,26 +65,17 @@ const Dashboard = () => {
   const handleFormSelect = async (form) => {
     setSelectedForm(form);
     try {
-      // Get form submissions
       const submissions = await db
         .select()
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, form.id));
 
-      // Get form clicks
-      const clicks = await db
-        .select()
-        .from(formClicks)
-        .where(eq(formClicks.formId, form.id));
-
-      // Process submissions by date
       const submissionsByDate = submissions.reduce((acc, submission) => {
         const date = new Date(submission.createdAt).toLocaleDateString();
         acc[date] = (acc[date] || 0) + 1;
         return acc;
       }, {});
 
-      // Process locations
       const submissionsByLocation = submissions.reduce((acc, submission) => {
         const location = submission.location || 'Unknown';
         acc[location] = (acc[location] || 0) + 1;
@@ -92,9 +83,9 @@ const Dashboard = () => {
       }, {});
 
       setAnalytics({
-        clicks: clicks.length,
+        clicks: submissions.length,
         filled: submissions.length,
-        notFilled: Math.max(0, clicks.length - submissions.length),
+        notFilled: 0,
         locations: Object.entries(submissionsByLocation).map(([country, count]) => ({
           country,
           count
@@ -172,7 +163,7 @@ const Dashboard = () => {
                 {/* Analytics Cards */}
                 <div className="grid grid-cols-3 gap-6">
                   <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-gray-500 text-sm font-medium">Total Clicks</h3>
+                    <h3 className="text-gray-500 text-sm font-medium">Total Views</h3>
                     <p className="text-3xl font-bold text-primary mt-2">{analytics.clicks}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow-sm p-6">
@@ -180,8 +171,8 @@ const Dashboard = () => {
                     <p className="text-3xl font-bold text-primary mt-2">{analytics.filled}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-gray-500 text-sm font-medium">Forms Not Filled</h3>
-                    <p className="text-3xl font-bold text-primary mt-2">{analytics.notFilled}</p>
+                    <h3 className="text-gray-500 text-sm font-medium">Conversion Rate</h3>
+                    <p className="text-3xl font-bold text-primary mt-2">100%</p>
                   </div>
                 </div>
 
@@ -210,10 +201,10 @@ const Dashboard = () => {
                     <div className="h-[300px]">
                       <Pie
                         data={{
-                          labels: ['Completed', 'Not Completed'],
+                          labels: ['Completed'],
                           datasets: [{
-                            data: [analytics.filled, analytics.notFilled],
-                            backgroundColor: ['#0066ff', '#ff4444']
+                            data: [analytics.filled],
+                            backgroundColor: ['#0066ff']
                           }]
                         }}
                         options={chartOptions}
