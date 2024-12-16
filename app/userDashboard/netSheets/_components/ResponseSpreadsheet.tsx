@@ -5,14 +5,14 @@ interface ResponseSpreadsheetProps {
   responses: any[];
   formTitle: string;
   formSubheading: string;
-  formId: string; // Add formId to props
+  formId: string; // Added formId to props
 }
 
 const ResponseSpreadsheet = ({
   responses,
   formTitle,
   formSubheading,
-  formId, // Add formId to destructured props
+  formId, // Added formId to destructured props
 }: ResponseSpreadsheetProps) => {
   const [localResponses, setLocalResponses] = useState(responses);
   const [editingCell, setEditingCell] = useState<{
@@ -39,7 +39,7 @@ const ResponseSpreadsheet = ({
   const extendedColumns = headers.length > 0 ? headers : Array.from({ length: 26 }, (_, i) => i.toString());
   const extendedRows = Array.from({ length: Math.max(1000, responses.length) }, (_, i) => i + 1);
 
-  // Fast column width calculation
+  // This is for fast column width calculation
   const calculateColumnWidth = useCallback((colIndex: number) => {
     const header = headers[colIndex];
     const elements = document.querySelectorAll(`[data-col="${colIndex}"] .cell-content`);

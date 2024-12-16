@@ -12,7 +12,7 @@ function SideNav({ isOpen, setIsOpen }) {
   const menuList = [
     { id: 1, name: "My Forms", icon: "", path: "/userDashboard" },
     { id: 2, name: "Responses", icon: "", path: "/userDashboard/responses" },
-    // { id: 3, name: "Analytics", icon: "📊", path: "/dashboard/analytics" },
+    { id: 3, name: "Analytics", icon: "", path: "/userDashboard/analytics" },
     // { id: 4, name: "Upgrade", icon: "🚀", path: "/dashboard/upgrade" },
     // { id: 5, name: "Admin", icon: "👑", path: "/admin/adminDashboard" },
   ];

@@ -5,13 +5,18 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { db } from "@/configs";
 import { formSubmissions, jsonForms } from "@/configs/schema";
 import { eq } from "drizzle-orm";
-import ResponseSpreadsheet from './_components/ResponseSpreadsheet';
+import dynamic from 'next/dynamic';
 import { ArrowLeft } from 'lucide-react';
 
+const ResponseSpreadsheet = dynamic(() => import('./_components/ResponseSpreadsheet'), { ssr: false });
+
 interface FormResponse {
-    formTitle?: string;
-    formSubheading?: string;
     [key: string]: any;
+}
+
+interface FormData {
+    formTitle: string;
+    formSubheading: string;
 }
 
 const NetSheet = () => {
@@ -19,8 +24,7 @@ const NetSheet = () => {
     const router = useRouter();
     const formId = searchParams.get('formId');
     const [responses, setResponses] = useState<FormResponse[]>([]);
-    const [formTitle, setFormTitle] = useState('');
-    const [formSubheading, setFormSubheading] = useState('');
+    const [formData, setFormData] = useState<FormData>({ formTitle: '', formSubheading: '' });
 
     useEffect(() => {
         if (formId) {
@@ -42,8 +46,10 @@ const NetSheet = () => {
 
                 if (formResult.length > 0) {
                     const formData = JSON.parse(formResult[0].jsonform);
-                    setFormTitle(formData.response[0].formTitle);
-                    setFormSubheading(formData.response[0].formSubheading);
+                    setFormData({
+                        formTitle: formData.response[0].formTitle,
+                        formSubheading: formData.response[0].formSubheading
+                    });
                 }
 
                 if (responsesResult.length > 0) {
@@ -67,12 +73,14 @@ const NetSheet = () => {
                     </button>
                 </div>
                 <div className="relative h-full sheet-scroll">
-                    <ResponseSpreadsheet
-                        responses={responses}
-                        formTitle={formTitle}
-                        formSubheading={formSubheading}
-                        formId={formId || ''} // Pass formId to ResponseSpreadsheet
-                    />
+                    {formId && (
+                        <ResponseSpreadsheet
+                            responses={responses}
+                            formTitle={formData.formTitle}
+                            formSubheading={formData.formSubheading}
+                            formId={formId}
+                        />
+                    )}
                 </div>
             </div>
         </div>

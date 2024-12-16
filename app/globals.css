@@ -111,3 +111,17 @@
   text-overflow: ellipsis;
 }
 
+.Grid {
+  contain: strict;
+}
+
+.Grid::-webkit-scrollbar {
+  display: none;
+}
+
+.Grid {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@import 'leaflet/dist/leaflet.css';

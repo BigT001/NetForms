@@ -1,0 +1,129 @@
+:root {
+  --primary-color: #0066ff;
+  --primary-light: #e6f0ff;
+  --primary-dark: #0052cc;
+}
+
+.forms-sidebar {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  height: calc(100vh - 140px);
+  position: sticky;
+  top: 20px;
+  overflow-y: auto;
+}
+
+.form-item {
+  padding: 16px;
+  background: white;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+}
+
+.form-item:hover {
+  border-color: var(--primary-color);
+  transform: translateX(5px);
+  background: var(--primary-light);
+}
+
+.form-item.selected {
+  border-left: 4px solid var(--primary-color);
+  background: var(--primary-light);
+}
+
+.form-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.form-item-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.form-badge {
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  background: var(--primary-light);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.form-item-meta {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.form-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+  border-top: 4px solid var(--primary-color);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin: 10px 0;
+}
+
+.no-forms {
+  text-align: center;
+  padding: 24px;
+}
+
+.create-form-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s ease;
+}
+
+.create-form-btn:hover {
+  background: var(--primary-dark);
+}
+
+/* Update chart colors */
+.charts-grid .chart-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Update all previous green colors to primary color */
+.line-chart {
+  border-color: var(--primary-color);
+}
+
+.pie-chart {
+  background-color: var(--primary-color);
+}
+
+.bar-chart {
+  background-color: var(--primary-color);
+}
