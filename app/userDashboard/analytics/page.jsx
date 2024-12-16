@@ -141,13 +141,13 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <header className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Form Analytics Dashboard</h1>
+        <header className="bg-white rounded-lg shadow-sm  mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
         </header>
 
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-3 bg-white rounded-lg shadow-sm p-6 h-[calc(100vh-200px)] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">Your Forms</h2>
+          <div className="col-span-3 bg-white rounded-lg shadow-sm h-[calc(100vh-200px)] overflow-y-auto">
+            <h2 className="text-md font-semibold mb-4">Your Forms</h2>
             {isLoading ? (
               <div className="flex items-center justify-center h-40">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -164,7 +164,7 @@ const Dashboard = () => {
                         : 'border border-gray-200 hover:border-primary hover:bg-gray-50'
                     }`}
                   >
-                    <h3 className="font-medium text-gray-800">
+                    <h3 className="font-small text-black text-sm">
                       {extractFormTitle(form.jsonform)}
                     </h3>
                   </div>
