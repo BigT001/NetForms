@@ -1,12 +1,40 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Line, Pie, Bar } from 'react-chartjs-2';
-import { Chart as ChartJS } from 'chart.js/auto';
+import dynamic from 'next/dynamic';
 import { db } from '@/configs';
 import { jsonForms, formSubmissions } from '@/configs/schema';
 import { useUser } from '@clerk/nextjs';
 import { desc, eq } from 'drizzle-orm';
+
+const Line = dynamic(() => import('react-chartjs-2').then(mod => mod.Line), { ssr: false });
+const Pie = dynamic(() => import('react-chartjs-2').then(mod => mod.Pie), { ssr: false });
+const Bar = dynamic(() => import('react-chartjs-2').then(mod => mod.Bar), { ssr: false });
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement
+);
 
 const extractFormTitle = (jsonform) => {
   try {
@@ -118,7 +146,6 @@ const Dashboard = () => {
         </header>
 
         <div className="grid grid-cols-12 gap-6">
-          {/* Form List Sidebar */}
           <div className="col-span-3 bg-white rounded-lg shadow-sm p-6 h-[calc(100vh-200px)] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">Your Forms</h2>
             {isLoading ? (
@@ -150,7 +177,6 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Main Content */}
           <div className="col-span-9 space-y-6">
             {selectedForm ? (
               <>
@@ -160,7 +186,6 @@ const Dashboard = () => {
                   </h2>
                 </div>
 
-                {/* Analytics Cards */}
                 <div className="grid grid-cols-3 gap-6">
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-gray-500 text-sm font-medium">Total Views</h3>
@@ -176,7 +201,6 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* Charts */}
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-lg font-medium mb-4">Submission Trends</h3>
