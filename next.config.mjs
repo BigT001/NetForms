@@ -9,6 +9,10 @@ const nextConfig = {
     ];
     return config;
   },
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@mui/material', '@radix-ui/react-icons']
+  }
 };
 
 export default nextConfig;
