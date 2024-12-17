@@ -7,9 +7,8 @@ import { jsonForms, formSubmissions } from '@/configs/schema';
 import { useUser } from '@clerk/nextjs';
 import { desc, eq } from 'drizzle-orm';
 
-const Line = dynamic(() => import('react-chartjs-2').then(mod => mod.Line), { ssr: false });
-const Pie = dynamic(() => import('react-chartjs-2').then(mod => mod.Pie), { ssr: false });
 const Bar = dynamic(() => import('react-chartjs-2').then(mod => mod.Bar), { ssr: false });
+const Pie = dynamic(() => import('react-chartjs-2').then(mod => mod.Pie), { ssr: false });
 
 import {
   Chart as ChartJS,
@@ -52,15 +51,25 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedForm, setSelectedForm] = useState(null);
   const [analytics, setAnalytics] = useState({
-    clicks: 0,
+    visits: 0,
     filled: 0,
-    notFilled: 0,
+    conversionRate: 0,
     locations: [],
-    trends: {
+    locationStats: {
       labels: [],
       data: []
     }
   });
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom'
+      }
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -98,29 +107,33 @@ const Dashboard = () => {
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, form.id));
 
-      const submissionsByDate = submissions.reduce((acc, submission) => {
-        const date = new Date(submission.createdAt).toLocaleDateString();
-        acc[date] = (acc[date] || 0) + 1;
+      const locationData = submissions.reduce((acc, submission) => {
+        if (submission.location) {
+          const [country, state] = submission.location.split(',').map(s => s.trim());
+          const key = `${country}, ${state}`;
+          acc[key] = (acc[key] || 0) + 1;
+        }
         return acc;
       }, {});
 
-      const submissionsByLocation = submissions.reduce((acc, submission) => {
-        const location = submission.location || 'Unknown';
-        acc[location] = (acc[location] || 0) + 1;
-        return acc;
-      }, {});
+      const sortedLocations = Object.entries(locationData)
+        .sort(([, a], [, b]) => b - a)
+        .reduce((acc, [key, value]) => {
+          acc[key] = value;
+          return acc;
+        }, {});
 
       setAnalytics({
-        clicks: submissions.length,
+        visits: submissions.length,
         filled: submissions.length,
-        notFilled: 0,
-        locations: Object.entries(submissionsByLocation).map(([country, count]) => ({
-          country,
+        conversionRate: '100',
+        locations: Object.entries(sortedLocations).map(([location, count]) => ({
+          location,
           count
         })),
-        trends: {
-          labels: Object.keys(submissionsByDate),
-          data: Object.values(submissionsByDate)
+        locationStats: {
+          labels: Object.keys(sortedLocations),
+          data: Object.values(sortedLocations)
         }
       });
     } catch (error) {
@@ -128,26 +141,45 @@ const Dashboard = () => {
     }
   };
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom'
-      }
-    }
-  };
+  const LocationStats = () => (
+    <div className="bg-white rounded-lg shadow-sm p-6">
+      <h3 className="text-lg font-medium mb-4">Location Statistics</h3>
+      <div className="h-[300px]">
+        <Bar
+          data={{
+            labels: analytics.locationStats?.labels || [],
+            datasets: [{
+              label: 'Submissions by Location',
+              data: analytics.locationStats?.data || [],
+              backgroundColor: '#0066ff'
+            }]
+          }}
+          options={{
+            ...chartOptions,
+            indexAxis: 'y',
+            plugins: {
+              ...chartOptions.plugins,
+              title: {
+                display: true,
+                text: 'Submissions by Location'
+              }
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <header className="bg-white rounded-lg shadow-sm  mb-6">
+        <header className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
         </header>
 
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-3 bg-white rounded-lg shadow-sm h-[calc(100vh-200px)] overflow-y-auto">
-            <h2 className="text-md font-semibold mb-4">Your Forms</h2>
+          <div className="col-span-3 bg-white rounded-lg shadow-sm p-6 h-[calc(100vh-200px)] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Your Forms</h2>
             {isLoading ? (
               <div className="flex items-center justify-center h-40">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -164,7 +196,7 @@ const Dashboard = () => {
                         : 'border border-gray-200 hover:border-primary hover:bg-gray-50'
                     }`}
                   >
-                    <h3 className="font-small text-black text-sm">
+                    <h3 className="font-medium text-gray-800">
                       {extractFormTitle(form.jsonform)}
                     </h3>
                   </div>
@@ -189,7 +221,7 @@ const Dashboard = () => {
                 <div className="grid grid-cols-3 gap-6">
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-gray-500 text-sm font-medium">Total Views</h3>
-                    <p className="text-3xl font-bold text-primary mt-2">{analytics.clicks}</p>
+                    <p className="text-3xl font-bold text-primary mt-2">{analytics.visits}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-gray-500 text-sm font-medium">Forms Filled</h3>
@@ -197,29 +229,13 @@ const Dashboard = () => {
                   </div>
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-gray-500 text-sm font-medium">Conversion Rate</h3>
-                    <p className="text-3xl font-bold text-primary mt-2">100%</p>
+                    <p className="text-3xl font-bold text-primary mt-2">{analytics.conversionRate}%</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-lg font-medium mb-4">Submission Trends</h3>
-                    <div className="h-[300px]">
-                      <Line
-                        data={{
-                          labels: analytics.trends.labels,
-                          datasets: [{
-                            label: 'Submissions',
-                            data: analytics.trends.data,
-                            borderColor: '#0066ff',
-                            tension: 0.4
-                          }]
-                        }}
-                        options={chartOptions}
-                      />
-                    </div>
-                  </div>
-
+                  <LocationStats />
+                  
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-lg font-medium mb-4">Completion Rate</h3>
                     <div className="h-[300px]">
@@ -241,7 +257,7 @@ const Dashboard = () => {
                     <div className="h-[300px]">
                       <Bar
                         data={{
-                          labels: analytics.locations.map(l => l.country),
+                          labels: analytics.locations.map(l => l.location),
                           datasets: [{
                             label: 'Submissions',
                             data: analytics.locations.map(l => l.count),

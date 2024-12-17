@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { db } from "@/configs";
-import { jsonForms } from "@/configs/schema";
+import { jsonForms, formSubmissions } from "@/configs/schema";
 import { eq } from "drizzle-orm";
 import FormUi from "@/app/edit-form/_components/FormUi";
 import { toast } from "react-hot-toast";
@@ -20,8 +20,25 @@ function LiveNetForm({ params }) {
   useEffect(() => {
     if (params?.formid) {
       getFormData();
+      trackVisit();
     }
   }, [params?.formid]);
+
+  const trackVisit = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const locationData = await response.json();
+      const location = `${locationData.country_name}, ${locationData.region}`;
+      
+      await db.insert(formSubmissions).values({
+        formId: Number(params.formid),
+        location: location,
+        isVisit: true
+      });
+    } catch (error) {
+      console.error('Error tracking visit:', error);
+    }
+  };
 
   const getFormData = async () => {
     setLoading(true);
@@ -110,12 +127,10 @@ function LiveNetForm({ params }) {
       </div>
 
       <div className="grid gap-2 text-center justify-center mt-4">
-      
         <span className="text-md text-gray-400 mt-10 mb-2">
           Create your own AI-powered form in seconds click the link below
         </span>
-       
-       
+        
         <Link href="/" className="inline-block">
           <span className="bg-primary px-2 py-1 font-extrabold text-white rounded-l-md">
             Net
