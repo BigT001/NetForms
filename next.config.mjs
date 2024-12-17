@@ -10,8 +10,7 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['@mui/material', '@radix-ui/react-icons']
+    optimizeCss: false // Disable this feature for now
   }
 };
 
