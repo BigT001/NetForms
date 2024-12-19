@@ -9,7 +9,8 @@ import FormUi from "@/app/edit-form/_components/FormUi";
 import { toast } from "react-hot-toast";
 import { updateFormThemeAndBackground } from "@/app/userDashboard/_components/actions";
 import Link from "next/link";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+
 
 function LiveNetForm({ params }) {
   const [record, setRecord] = useState(null);
@@ -17,12 +18,29 @@ function LiveNetForm({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [theme, setTheme] = useState("light");
-  const [_, setValue, trackFormVisit] = useLocalStorage(`form_${params?.formid}_visits`, []);
+  const [_, __, trackFormVisit] = useLocalStorage('dummy', null);
+
 
   useEffect(() => {
     if (params?.formid) {
-      getFormData();
+      // Track the visit
       trackFormVisit(params.formid);
+      const formId = params.formid;
+      const visitKey = `form_${formId}_visits`;
+      const visits = JSON.parse(localStorage.getItem(visitKey) || "[]");
+
+      // Add current visit with timestamp and location
+      const newVisit = {
+        timestamp: new Date().toISOString(),
+        location: window.location.href,
+      };
+      visits.push(newVisit);
+
+      // Save back to localStorage
+      localStorage.setItem(visitKey, JSON.stringify(visits));
+
+      // Continue with existing form data fetch
+      getFormData();
     }
   }, [params?.formid]);
 

@@ -118,11 +118,14 @@ const Dashboard = () => {
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, form.id));
 
-      const localVisits = getFormVisits(form.id);
-      const totalVisits = localVisits.length;
+      // const localVisits = getFormVisits(form.id);
+      const visitKey = `form_${form.id}_visits`;
+      const visits = JSON.parse(localStorage.getItem(visitKey) || '[]');
+      const totalVisits = visits.length;
       const filled = submissions.filter(s => !s.isVisit).length;
       
       const conversionRate = totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : '0';
+      
 
       const locationData = submissions.reduce((acc, submission) => {
         if (submission.location && !submission.isVisit) {
