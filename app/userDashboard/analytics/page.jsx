@@ -8,6 +8,7 @@ import { useUser } from '@clerk/nextjs';
 import { desc, eq } from 'drizzle-orm';
 import { ChevronDownIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/navigation';
+import { useLocalStorage } from '../netSheets/hooks/useLocalStorage';
 
 const Bar = dynamic(() => import('react-chartjs-2').then(mod => mod.Bar), { ssr: false });
 const Pie = dynamic(() => import('react-chartjs-2').then(mod => mod.Pie), { ssr: false });
@@ -55,10 +56,11 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedForm, setSelectedForm] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [_, __, ___, getFormVisits] = useLocalStorage('dummy', null);
   const [analytics, setAnalytics] = useState({
     visits: 0,
     filled: 0,
-    conversionRate: 0,
+    conversionRate: '0',
     locations: [],
     locationStats: {
       labels: [],
@@ -116,8 +118,14 @@ const Dashboard = () => {
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, form.id));
 
+      const localVisits = getFormVisits(form.id);
+      const totalVisits = localVisits.length;
+      const filled = submissions.filter(s => !s.isVisit).length;
+      
+      const conversionRate = totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : '0';
+
       const locationData = submissions.reduce((acc, submission) => {
-        if (submission.location) {
+        if (submission.location && !submission.isVisit) {
           const [country, state] = submission.location.split(',').map(s => s.trim());
           const key = `${country}, ${state}`;
           acc[key] = (acc[key] || 0) + 1;
@@ -132,17 +140,18 @@ const Dashboard = () => {
           return acc;
         }, {});
 
-      // Calculate submission trends
-      const submissionsByDate = submissions.reduce((acc, submission) => {
-        const date = new Date(submission.createdAt).toLocaleDateString();
-        acc[date] = (acc[date] || 0) + 1;
-        return acc;
-      }, {});
+      const submissionsByDate = submissions
+        .filter(s => !s.isVisit)
+        .reduce((acc, submission) => {
+          const date = new Date(submission.createdAt).toLocaleDateString();
+          acc[date] = (acc[date] || 0) + 1;
+          return acc;
+        }, {});
 
       setAnalytics({
-        visits: submissions.length,
-        filled: submissions.length,
-        conversionRate: '100',
+        visits: totalVisits,
+        filled: filled,
+        conversionRate: conversionRate,
         locations: Object.entries(sortedLocations).map(([location, count]) => ({
           location,
           count
@@ -166,8 +175,8 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto">
         <header className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => router.back()} 
+            <button
+              onClick={() => router.back()}
               className="lg:hidden text-gray-600 hover:text-gray-900"
             >
               <ArrowLeftIcon className="h-6 w-6" />
@@ -179,7 +188,6 @@ const Dashboard = () => {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-          {/* Mobile/Tablet Form Selector */}
           <div className="lg:hidden w-full">
             <div className="relative">
               <button
@@ -213,7 +221,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Desktop Sidebar */}
           <div className="hidden lg:block lg:col-span-3 bg-white rounded-lg shadow-sm h-auto lg:h-[calc(100vh-200px)] overflow-y-auto">
             <h2 className="text-lg sm:text-xl font-semibold mb-4">Your Forms</h2>
             {isLoading ? (
@@ -226,7 +233,7 @@ const Dashboard = () => {
                   <div
                     key={form.id}
                     onClick={() => handleFormSelect(form)}
-                    className={` sm:p-4 rounded-lg cursor-pointer transition-all ${
+                    className={`sm:p-4 rounded-lg cursor-pointer transition-all ${
                       selectedForm?.id === form.id
                         ? 'bg-primary/10 border-l-4 border-primary'
                         : 'border border-gray-200 hover:border-primary hover:bg-gray-50'
@@ -245,7 +252,6 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-9 space-y-4 sm:space-y-6">
             {selectedForm ? (
               <>
