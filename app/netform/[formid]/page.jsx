@@ -23,27 +23,28 @@ function LiveNetForm({ params }) {
 
   useEffect(() => {
     if (params?.formid) {
-      // Track the visit
-      trackFormVisit(params.formid);
       const formId = params.formid;
       const visitKey = `form_${formId}_visits`;
       const visits = JSON.parse(localStorage.getItem(visitKey) || "[]");
+      
+      // Check if there's already a visit in the last minute to prevent double counting
+      const lastVisit = visits[visits.length - 1];
+      const now = new Date().getTime();
+      const oneMinute = 60 * 1000; // milliseconds
+      
+      if (!lastVisit || (now - new Date(lastVisit.timestamp).getTime()) > oneMinute) {
+        const newVisit = {
+          timestamp: new Date().toISOString(),
+          location: window.location.href,
+        };
+        visits.push(newVisit);
+        localStorage.setItem(visitKey, JSON.stringify(visits));
+      }
 
-      // Add current visit with timestamp and location
-      const newVisit = {
-        timestamp: new Date().toISOString(),
-        location: window.location.href,
-      };
-      visits.push(newVisit);
-
-      // Save back to localStorage
-      localStorage.setItem(visitKey, JSON.stringify(visits));
-
-      // Continue with existing form data fetch
       getFormData();
     }
   }, [params?.formid]);
-
+  
   const getFormData = async () => {
     setLoading(true);
     setError(null);
