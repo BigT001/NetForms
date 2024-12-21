@@ -1,6 +1,6 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
+import dynamic from 'next/dynamic';
 import { db } from "@/configs";
 import { jsonForms, formSubmissions } from "@/configs/schema";
 import { useUser } from "@clerk/nextjs";
@@ -8,8 +8,9 @@ import { desc, eq } from "drizzle-orm";
 import { ChevronDownIcon, ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import { useLocalStorage } from "../netSheets/hooks/useLocalStorage";
-import MapVisitors from "./_components/MapVisitors";
-import LocationChart from "./_components/LocationChart";
+
+const MapVisitors = dynamic(() => import('./_components/MapVisitors'), { ssr: false });
+const LocationChart = dynamic(() => import('./_components/LocationChart'), { ssr: false });
 
 const extractFormTitle = (jsonform) => {
   try {
@@ -28,12 +29,11 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedForm, setSelectedForm] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [_, __, ___, getFormVisits] = useLocalStorage("dummy", null);
   const [analytics, setAnalytics] = useState({
     visits: 0,
     filled: 0,
     conversionRate: "0",
-    locations: [],
+    locations: []
   });
 
   useEffect(() => {
@@ -73,20 +73,22 @@ const Dashboard = () => {
         .where(eq(formSubmissions.formId, form.id));
 
       const visitKey = `form_${form.id}_visits`;
-      const visits = JSON.parse(localStorage.getItem(visitKey) || "[]");
+      const visits = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(visitKey) || "[]") : [];
       const totalVisits = visits.length;
       const filled = submissions.filter((s) => !s.isVisit).length;
-      const conversionRate =
-        totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : "0";
+      const conversionRate = totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : "0";
 
       setAnalytics({
         visits: totalVisits,
         filled: filled,
         conversionRate: conversionRate,
         locations: visits.map((visit) => ({
-          location: new URL(visit.location).hostname,
-          timestamp: visit.timestamp,
-        })),
+          latitude: visit.latitude || 0,
+          longitude: visit.longitude || 0,
+          city: visit.city || 'Unknown',
+          country: visit.country || 'Unknown',
+          timestamp: visit.timestamp
+        }))
       });
     } catch (error) {
       console.error("Error fetching analytics:", error);
@@ -111,6 +113,7 @@ const Dashboard = () => {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+          {/* Mobile Form Selector */}
           <div className="lg:hidden w-full">
             <div className="relative">
               <button
@@ -150,21 +153,20 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Desktop Form List */}
           <div className="hidden lg:block lg:col-span-3 bg-white rounded-lg shadow-sm h-auto lg:h-[calc(100vh-200px)] overflow-y-auto">
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">
-              Your Forms
-            </h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 p-4">Your Forms</h2>
             {isLoading ? (
               <div className="flex items-center justify-center h-40">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : formList.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-3 p-4">
                 {formList.map((form) => (
                   <div
                     key={form.id}
                     onClick={() => handleFormSelect(form)}
-                    className={`sm:p-4 rounded-lg cursor-pointer transition-all ${
+                    className={`p-4 rounded-lg cursor-pointer transition-all ${
                       selectedForm?.id === form.id
                         ? "bg-primary/10 border-l-4 border-primary"
                         : "border border-gray-200 hover:border-primary hover:bg-gray-50"
@@ -183,6 +185,7 @@ const Dashboard = () => {
             )}
           </div>
 
+          {/* Main Content */}
           <div className="lg:col-span-9 space-y-4 sm:space-y-6">
             {selectedForm ? (
               <>
@@ -219,22 +222,17 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                <div className="">
-                  <h3 className="bg-white text-large text-black rounded-lg shadow-sm p-4 sm:p-6 mb-8">
-                    Visitor Locations
-                  </h3>
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 justify-center gap-4">
-                      <div>
-                      <MapVisitors locations={analytics.locations} />
-
-                      </div>
-                      <div>
-                      <LocationChart locations={analytics.locations} />
-                      </div>
+                <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                  <h3 className="text-lg font-semibold mb-6">Visitor Locations</h3>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-lg shadow-sm p-4 min-h-[400px]">
+                      {typeof window !== 'undefined' && <MapVisitors locations={analytics.locations} />}
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm p-4 min-h-[400px]">
+                      {typeof window !== 'undefined' && <LocationChart locations={analytics.locations} />}
                     </div>
                   </div>
-                </div>c
+                </div>
               </>
             ) : (
               <div className="flex items-center justify-center h-full min-h-[400px]">
