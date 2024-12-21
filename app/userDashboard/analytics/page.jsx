@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { db } from '@/configs';
-import { jsonForms, formSubmissions } from '@/configs/schema';
-import { useUser } from '@clerk/nextjs';
-import { desc, eq } from 'drizzle-orm';
-import { ChevronDownIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
-import { useRouter } from 'next/navigation';
-import { useLocalStorage } from '../netSheets/hooks/useLocalStorage';
+import React, { useState, useEffect } from "react";
+import { db } from "@/configs";
+import { jsonForms, formSubmissions } from "@/configs/schema";
+import { useUser } from "@clerk/nextjs";
+import { desc, eq } from "drizzle-orm";
+import { ChevronDownIcon, ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
+import { useLocalStorage } from "../netSheets/hooks/useLocalStorage";
+import MapVisitors from "./_components/MapVisitors";
+import LocationChart from "./_components/LocationChart";
 
 const extractFormTitle = (jsonform) => {
   try {
@@ -26,12 +28,12 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedForm, setSelectedForm] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [_, __, ___, getFormVisits] = useLocalStorage('dummy', null);
+  const [_, __, ___, getFormVisits] = useLocalStorage("dummy", null);
   const [analytics, setAnalytics] = useState({
     visits: 0,
     filled: 0,
-    conversionRate: '0',
-    locations: []
+    conversionRate: "0",
+    locations: [],
   });
 
   useEffect(() => {
@@ -48,7 +50,7 @@ const Dashboard = () => {
         .select({
           id: jsonForms.id,
           jsonform: jsonForms.jsonform,
-          createdBy: jsonForms.createdBy
+          createdBy: jsonForms.createdBy,
         })
         .from(jsonForms)
         .where(eq(jsonForms.createdBy, user.primaryEmailAddress.emailAddress))
@@ -71,22 +73,23 @@ const Dashboard = () => {
         .where(eq(formSubmissions.formId, form.id));
 
       const visitKey = `form_${form.id}_visits`;
-      const visits = JSON.parse(localStorage.getItem(visitKey) || '[]');
+      const visits = JSON.parse(localStorage.getItem(visitKey) || "[]");
       const totalVisits = visits.length;
-      const filled = submissions.filter(s => !s.isVisit).length;
-      const conversionRate = totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : '0';
+      const filled = submissions.filter((s) => !s.isVisit).length;
+      const conversionRate =
+        totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : "0";
 
       setAnalytics({
         visits: totalVisits,
         filled: filled,
         conversionRate: conversionRate,
-        locations: visits.map(visit => ({
+        locations: visits.map((visit) => ({
           location: new URL(visit.location).hostname,
-          timestamp: visit.timestamp
-        }))
+          timestamp: visit.timestamp,
+        })),
       });
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error("Error fetching analytics:", error);
     }
   };
 
@@ -115,14 +118,20 @@ const Dashboard = () => {
                 className="w-full bg-white p-4 rounded-lg shadow-sm flex items-center justify-between"
               >
                 <span className="font-medium">
-                  {selectedForm ? extractFormTitle(selectedForm.jsonform) : 'Select a form'}
+                  {selectedForm
+                    ? extractFormTitle(selectedForm.jsonform)
+                    : "Select a form"}
                 </span>
-                <ChevronDownIcon className={`h-5 w-5 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDownIcon
+                  className={`h-5 w-5 transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {isDropdownOpen && (
                 <div className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-lg max-h-[60vh] overflow-y-auto">
-                  {formList.map(form => (
+                  {formList.map((form) => (
                     <div
                       key={form.id}
                       onClick={() => {
@@ -142,21 +151,23 @@ const Dashboard = () => {
           </div>
 
           <div className="hidden lg:block lg:col-span-3 bg-white rounded-lg shadow-sm h-auto lg:h-[calc(100vh-200px)] overflow-y-auto">
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">Your Forms</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">
+              Your Forms
+            </h2>
             {isLoading ? (
               <div className="flex items-center justify-center h-40">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : formList.length > 0 ? (
               <div className="space-y-3">
-                {formList.map(form => (
+                {formList.map((form) => (
                   <div
                     key={form.id}
                     onClick={() => handleFormSelect(form)}
                     className={`sm:p-4 rounded-lg cursor-pointer transition-all ${
                       selectedForm?.id === form.id
-                        ? 'bg-primary/10 border-l-4 border-primary'
-                        : 'border border-gray-200 hover:border-primary hover:bg-gray-50'
+                        ? "bg-primary/10 border-l-4 border-primary"
+                        : "border border-gray-200 hover:border-primary hover:bg-gray-50"
                     }`}
                   >
                     <h3 className="font-medium text-sm text-gray-800">
@@ -183,35 +194,47 @@ const Dashboard = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                    <h3 className="text-gray-500 text-sm font-medium">Total Views</h3>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">{analytics.visits}</p>
+                    <h3 className="text-gray-500 text-sm font-medium">
+                      Total Views
+                    </h3>
+                    <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">
+                      {analytics.visits}
+                    </p>
                   </div>
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                    <h3 className="text-gray-500 text-sm font-medium">Forms Filled</h3>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">{analytics.filled}</p>
+                    <h3 className="text-gray-500 text-sm font-medium">
+                      Forms Filled
+                    </h3>
+                    <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">
+                      {analytics.filled}
+                    </p>
                   </div>
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                    <h3 className="text-gray-500 text-sm font-medium">Conversion Rate</h3>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">{analytics.conversionRate}%</p>
+                    <h3 className="text-gray-500 text-sm font-medium">
+                      Conversion Rate
+                    </h3>
+                    <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">
+                      {analytics.conversionRate}%
+                    </p>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-medium mb-4">Visitor Locations</h3>
+                <div className="">
+                  <h3 className="bg-white text-large text-black rounded-lg shadow-sm p-4 sm:p-6 mb-8">
+                    Visitor Locations
+                  </h3>
                   <div className="space-y-2">
-                    {analytics.locations.length > 0 ? (
-                      analytics.locations.map((visit, index) => (
-                        <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                          <p className="text-gray-700">
-                            {visit.location} - {new Date(visit.timestamp).toLocaleString()}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500">No visitor locations recorded yet</p>
-                    )}
+                    <div className="grid grid-cols-2 justify-center gap-4">
+                      <div>
+                      <MapVisitors locations={analytics.locations} />
+
+                      </div>
+                      <div>
+                      <LocationChart locations={analytics.locations} />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </div>c
               </>
             ) : (
               <div className="flex items-center justify-center h-full min-h-[400px]">

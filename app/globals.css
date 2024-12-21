@@ -124,4 +124,9 @@
   scrollbar-width: none;
 }
 
+.custom-marker {
+  background: none;
+  border: none;
+}
+
 @import 'leaflet/dist/leaflet.css';
