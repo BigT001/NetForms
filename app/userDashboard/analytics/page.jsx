@@ -9,7 +9,6 @@ import { ChevronDownIcon, ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import { useLocalStorage } from "../netSheets/hooks/useLocalStorage";
 
-const MapVisitors = dynamic(() => import('./_components/MapVisitors'), { ssr: false });
 const LocationChart = dynamic(() => import('./_components/LocationChart'), { ssr: false });
 
 const extractFormTitle = (jsonform) => {
@@ -83,9 +82,8 @@ const Dashboard = () => {
         filled: filled,
         conversionRate: conversionRate,
         locations: visits.map((visit) => ({
-          latitude: visit.latitude || 0,
-          longitude: visit.longitude || 0,
           city: visit.city || 'Unknown',
+          state: visit.state || 'Unknown',
           country: visit.country || 'Unknown',
           timestamp: visit.timestamp
         }))
@@ -224,13 +222,8 @@ const Dashboard = () => {
 
                 <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                   <h3 className="text-lg font-semibold mb-6">Visitor Locations</h3>
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-lg shadow-sm p-4 min-h-[400px]">
-                      {typeof window !== 'undefined' && <MapVisitors locations={analytics.locations} />}
-                    </div>
-                    <div className="bg-white rounded-lg shadow-sm p-4 min-h-[400px]">
-                      {typeof window !== 'undefined' && <LocationChart locations={analytics.locations} />}
-                    </div>
+                  <div className="min-h-[400px]">
+                    {typeof window !== 'undefined' && <LocationChart locations={analytics.locations} />}
                   </div>
                 </div>
               </>
