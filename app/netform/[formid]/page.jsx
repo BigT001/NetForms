@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { db } from "@/configs";
@@ -11,6 +10,57 @@ import { updateFormThemeAndBackground } from "@/app/userDashboard/_components/ac
 import Link from "next/link";
 import { useLocalStorage } from '../../userDashboard/netSheets/hooks/useLocalStorage';
 
+const getVisitorLocation = async () => {
+  try {
+    // Primary location service with enhanced fields
+    const response = await fetch('http://ip-api.com/json/?fields=status,message,country,regionName,city,lat,lon,timezone,isp');
+    const data = await response.json();
+    
+    if (data.status === 'success') {
+      return {
+        city: data.city,
+        state: data.regionName,
+        country: data.country,
+        latitude: data.lat,
+        longitude: data.lon,
+        timezone: data.timezone,
+        isp: data.isp,
+        timestamp: new Date().toISOString(),
+        visitTime: new Date().toLocaleTimeString(),
+        visitDate: new Date().toLocaleDateString()
+      };
+    }
+
+    // Fallback to secondary service
+    const backupResponse = await fetch('https://ipapi.co/json/');
+    const backupData = await backupResponse.json();
+    
+    return {
+      city: backupData.city,
+      state: backupData.region,
+      country: backupData.country_name,
+      latitude: backupData.latitude,
+      longitude: backupData.longitude,
+      timezone: backupData.timezone,
+      isp: backupData.org,
+      timestamp: new Date().toISOString(),
+      visitTime: new Date().toLocaleTimeString(),
+      visitDate: new Date().toLocaleDateString()
+    };
+  } catch (error) {
+    console.log('Location fetch error:', error);
+    return {
+      city: 'Unknown',
+      state: 'Unknown',
+      country: 'Unknown',
+      latitude: 0,
+      longitude: 0,
+      timestamp: new Date().toISOString(),
+      visitTime: new Date().toLocaleTimeString(),
+      visitDate: new Date().toLocaleDateString()
+    };
+  }
+};
 
 function LiveNetForm({ params }) {
   const [record, setRecord] = useState(null);
@@ -20,31 +70,38 @@ function LiveNetForm({ params }) {
   const [theme, setTheme] = useState("light");
   const [_, __, trackFormVisit] = useLocalStorage('dummy', null);
 
-
   useEffect(() => {
     if (params?.formid) {
-      const formId = params.formid;
-      const visitKey = `form_${formId}_visits`;
-      const visits = JSON.parse(localStorage.getItem(visitKey) || "[]");
-      
-      // Check if there's already a visit in the last minute to prevent double counting
-      const lastVisit = visits[visits.length - 1];
-      const now = new Date().getTime();
-      const oneMinute = 60 * 1000; // milliseconds
-      
-      if (!lastVisit || (now - new Date(lastVisit.timestamp).getTime()) > oneMinute) {
-        const newVisit = {
-          timestamp: new Date().toISOString(),
-          location: window.location.href,
-        };
-        visits.push(newVisit);
-        localStorage.setItem(visitKey, JSON.stringify(visits));
-      }
+      const recordVisit = async () => {
+        const formId = params.formid;
+        const visitKey = `form_${formId}_visits`;
+        const visits = JSON.parse(localStorage.getItem(visitKey) || "[]");
+        
+        const lastVisit = visits[visits.length - 1];
+        const now = new Date().getTime();
+        const oneMinute = 60 * 1000;
+        
+        if (!lastVisit || (now - new Date(lastVisit.timestamp).getTime()) > oneMinute) {
+          const locationData = await getVisitorLocation();
+          if (locationData) {
+            const visitData = {
+              ...locationData,
+              location: window.location.href,
+              userAgent: navigator.userAgent,
+              screenResolution: `${window.screen.width}x${window.screen.height}`,
+              language: navigator.language
+            };
+            visits.push(visitData);
+            localStorage.setItem(visitKey, JSON.stringify(visits));
+          }
+        }
+      };
 
+      recordVisit();
       getFormData();
     }
   }, [params?.formid]);
-  
+
   const getFormData = async () => {
     setLoading(true);
     setError(null);
