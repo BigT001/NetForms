@@ -1,7 +1,8 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { motion } from 'framer-motion';
+import { MapPinIcon, GlobeAltIcon, ClockIcon, DeviceTabletIcon } from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -20,9 +21,10 @@ ChartJS.register(
 );
 
 const LocationChart = ({ locations }) => {
-  // Group locations by country and state
+  const [selectedView, setSelectedView] = useState('chart'); // 'chart' or 'table'
+
   const locationStats = locations.reduce((acc, loc) => {
-    const key = `${loc.state}, ${loc.country}`;
+    const key = `${loc.state || loc.city}, ${loc.country}`;
     if (!acc[key]) {
       acc[key] = {
         count: 0,
@@ -30,12 +32,16 @@ const LocationChart = ({ locations }) => {
           state: loc.state,
           country: loc.country,
           cities: new Set(),
-          visits: [],
+          browsers: new Set(),
+          devices: new Set(),
+          visits: []
         }
       };
     }
     acc[key].count++;
     acc[key].details.cities.add(loc.city);
+    acc[key].details.browsers.add(loc.userAgent?.split(' ')[0] || 'Unknown');
+    acc[key].details.devices.add(loc.screenResolution || 'Unknown');
     acc[key].details.visits.push({
       time: loc.visitTime,
       date: loc.visitDate,
@@ -45,19 +51,23 @@ const LocationChart = ({ locations }) => {
     return acc;
   }, {});
 
-  const colors = [
-    '#4F46E5', '#10B981', '#F59E0B', '#EF4444', 
-    '#8B5CF6', '#EC4899', '#06B6D4', '#F97316'
+  const gradientColors = [
+    ['#4F46E5', '#818CF8'],
+    ['#10B981', '#34D399'],
+    ['#F59E0B', '#FBBF24'],
+    ['#EF4444', '#F87171'],
+    ['#8B5CF6', '#A78BFA'],
+    ['#EC4899', '#F472B6']
   ];
 
   const data = {
     labels: Object.keys(locationStats),
     datasets: [{
       data: Object.values(locationStats).map(stat => stat.count),
-      backgroundColor: colors,
-      borderColor: colors.map(color => `${color}33`),
+      backgroundColor: gradientColors.map(([start]) => start),
+      borderColor: gradientColors.map(([_, end]) => end),
       borderWidth: 2,
-      hoverOffset: 4
+      hoverOffset: 8
     }]
   };
 
@@ -85,10 +95,10 @@ const LocationChart = ({ locations }) => {
             const stats = locationStats[locationKey];
             const percentage = ((context.raw / locations.length) * 100).toFixed(1);
             return [
-              `Total Visits: ${context.raw}`,
-              `Percentage: ${percentage}%`,
-              `Cities: ${Array.from(stats.details.cities).join(', ')}`,
-              `Latest Visit: ${stats.details.visits[stats.details.visits.length - 1].date}`
+              `📍 Location: ${locationKey}`,
+              `👥 Visits: ${context.raw} (${percentage}%)`,
+              `🌆 Cities: ${Array.from(stats.details.cities).join(', ')}`,
+              `🕒 Latest: ${stats.details.visits[stats.details.visits.length - 1].date}`
             ];
           }
         }
@@ -98,48 +108,107 @@ const LocationChart = ({ locations }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-lg shadow-sm p-6"
+      className="bg-white rounded-xl shadow-lg p-6"
     >
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">Visitor Distribution</h3>
-      <div className="h-[400px] w-full relative">
-        <Doughnut data={data} options={options} />
-        {locations.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-gray-500">No visitor data available</p>
-          </div>
-        )}
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-bold text-gray-800">Visitor Analytics</h3>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSelectedView('chart')}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              selectedView === 'chart'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Chart View
+          </button>
+          <button
+            onClick={() => setSelectedView('table')}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              selectedView === 'table'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Table View
+          </button>
+        </div>
       </div>
-      
-      {/* Detailed Statistics Table */}
-      <div className="mt-6 overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visits</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cities</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest Visit</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {Object.entries(locationStats).map(([key, stats], index) => (
-              <tr key={key} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{key}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{stats.count}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {Array.from(stats.details.cities).join(', ')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {stats.details.visits[stats.details.visits.length - 1].date}
-                </td>
+
+      {selectedView === 'chart' ? (
+        <div className="h-[400px] relative">
+          <Doughnut data={data} options={options} />
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Location
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Visits
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Details
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Latest Activity
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {Object.entries(locationStats).map(([key, stats], index) => (
+                <tr
+                  key={key}
+                  className={`${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  } hover:bg-gray-100 transition-colors`}
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <MapPinIcon className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-sm font-medium text-gray-900">{key}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900">
+                      {stats.count} visits
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
+                        <GlobeAltIcon className="h-4 w-4" />
+                        {Array.from(stats.details.cities).join(', ')}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
+                        <ClockIcon className="h-4 w-4" />
+                        {stats.details.visits[stats.details.visits.length - 1].date}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {locations.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <p className="text-gray-500">No visitor data available</p>
+        </div>
+      )}
     </motion.div>
   );
 };
