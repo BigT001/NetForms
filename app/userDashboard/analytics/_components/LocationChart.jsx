@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPinIcon, GlobeAltIcon, ClockIcon, DeviceTabletIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, GlobeAltIcon, ClockIcon } from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -20,88 +20,71 @@ ChartJS.register(
   LinearScale
 );
 
-const getLocationData = async () => {
-  try {
-    const response = await fetch('https://ipapi.co/json/');
-    const data = await response.json();
-    return {
-      city: data.city,
-      state: data.region,
-      country: data.country_name,
-      timezone: data.timezone,
-      isp: data.org,
-      latitude: data.latitude,
-      longitude: data.longitude
-    };
-  } catch (error) {
-    try {
-      const response = await fetch('https://geolocation-db.com/json/');
-      const data = await response.json();
-      return {
-        city: data.city,
-        state: data.state,
-        country: data.country_name,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        latitude: data.latitude,
-        longitude: data.longitude
-      };
-    } catch (fallbackError) {
-      const response = await fetch('https://ip-api.com/json');
-      const data = await response.json();
-      return {
-        city: data.city,
-        state: data.regionName,
-        country: data.country,
-        timezone: data.timezone,
-        isp: data.isp,
-        latitude: data.lat,
-        longitude: data.lon
-      };
-    }
-  }
-};
-
-const getDeviceInfo = () => {
-  return {
-    screenResolution: `${window.screen.width}x${window.screen.height}`,
-    userAgent: navigator.userAgent,
-    language: navigator.language,
-    platform: navigator.platform,
-    deviceMemory: navigator.deviceMemory,
-    connection: navigator.connection?.effectiveType || 'unknown'
-  };
-};
-
-const LocationChart = () => {
+const LocationChart = ({ locations = [] }) => {
   const [selectedView, setSelectedView] = useState('chart');
   const [locationData, setLocationData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initializeLocationData = async () => {
+    const processLocations = async () => {
       setIsLoading(true);
-      try {
-        const geoData = await getLocationData();
-        const deviceInfo = getDeviceInfo();
-        
-        const enrichedLocation = {
-          ...geoData,
-          ...deviceInfo,
-          visitTime: new Date().toLocaleTimeString(),
-          visitDate: new Date().toLocaleDateString(),
-          count: 1
-        };
-
-        setLocationData([enrichedLocation]);
-      } catch (error) {
-        console.error('Error fetching location data:', error);
-      } finally {
-        setIsLoading(false);
-      }
+      const processedLocations = await Promise.all(
+        locations.map(async (loc) => {
+          try {
+            const response = await fetch('https://ipapi.co/json/', {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              cache: 'no-cache'
+            });
+            
+            if (!response.ok) {
+              throw new Error('Location service unavailable');
+            }
+            
+            const geoData = await response.json();
+            
+            return {
+              ...loc,
+              city: geoData.city || loc.city,
+              state: geoData.region || loc.state,
+              country: geoData.country_name || loc.country,
+              timezone: geoData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+              isp: geoData.org || 'Unknown',
+              visitTime: loc.visitTime || new Date().toLocaleTimeString(),
+              visitDate: loc.visitDate || new Date().toLocaleDateString(),
+              userAgent: loc.userAgent || navigator.userAgent,
+              screenResolution: loc.screenResolution || `${window.screen.width}x${window.screen.height}`,
+              language: loc.language || navigator.language
+            };
+          } catch (error) {
+            console.log('Location fetch error:', error);
+            return {
+              ...loc,
+              city: loc.city || 'Unknown',
+              state: loc.state || 'Unknown',
+              country: loc.country || 'Unknown',
+              timezone: loc.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+              visitTime: loc.visitTime || new Date().toLocaleTimeString(),
+              visitDate: loc.visitDate || new Date().toLocaleDateString(),
+              userAgent: loc.userAgent || navigator.userAgent,
+              screenResolution: loc.screenResolution || `${window.screen.width}x${window.screen.height}`,
+              language: loc.language || navigator.language
+            };
+          }
+        })
+      );
+      
+      setLocationData(processedLocations);
+      setIsLoading(false);
     };
 
-    initializeLocationData();
-  }, []);
+    if (locations.length > 0) {
+      processLocations();
+    }
+  }, [locations]);
 
   const locationStats = useMemo(() => {
     return locationData.reduce((acc, loc) => {
@@ -112,20 +95,25 @@ const LocationChart = () => {
           details: {
             state: loc.state,
             country: loc.country,
-            cities: new Set([loc.city]),
-            browsers: new Set([loc.userAgent?.split(' ')[0]]),
-            devices: new Set([loc.screenResolution]),
+            cities: new Set(),
+            browsers: new Set(),
+            devices: new Set(),
             visits: []
           }
         };
       }
-      acc[key].count += loc.count;
+
+      acc[key].count++;
+      acc[key].details.cities.add(loc.city);
+      acc[key].details.browsers.add(loc.userAgent?.split(' ')[0] || 'Unknown');
+      acc[key].details.devices.add(loc.screenResolution || 'Unknown');
       acc[key].details.visits.push({
         time: loc.visitTime,
         date: loc.visitDate,
         timezone: loc.timezone,
         isp: loc.isp
       });
+
       return acc;
     }, {});
   }, [locationData]);
@@ -288,6 +276,12 @@ const LocationChart = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {locationData.length === 0 && !isLoading && (
+          <div className="flex items-center justify-center h-[400px]">
+            <p className="text-gray-500">No visitor data available</p>
           </div>
         )}
       </motion.div>
