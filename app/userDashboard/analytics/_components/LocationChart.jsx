@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPinIcon, GlobeAltIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, GlobeAltIcon, ClockIcon, DeviceTabletIcon } from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -21,44 +21,87 @@ ChartJS.register(
 );
 
 const getLocationData = async () => {
-  const response = await fetch('https://ipapi.co/json/');
-  const data = await response.json();
+  try {
+    const response = await fetch('https://ipapi.co/json/');
+    const data = await response.json();
+    return {
+      city: data.city,
+      state: data.region,
+      country: data.country_name,
+      timezone: data.timezone,
+      isp: data.org,
+      latitude: data.latitude,
+      longitude: data.longitude
+    };
+  } catch (error) {
+    try {
+      const response = await fetch('https://geolocation-db.com/json/');
+      const data = await response.json();
+      return {
+        city: data.city,
+        state: data.state,
+        country: data.country_name,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        latitude: data.latitude,
+        longitude: data.longitude
+      };
+    } catch (fallbackError) {
+      const response = await fetch('https://ip-api.com/json');
+      const data = await response.json();
+      return {
+        city: data.city,
+        state: data.regionName,
+        country: data.country,
+        timezone: data.timezone,
+        isp: data.isp,
+        latitude: data.lat,
+        longitude: data.lon
+      };
+    }
+  }
+};
+
+const getDeviceInfo = () => {
   return {
-    city: data.city,
-    state: data.region,
-    country: data.country_name,
-    timezone: data.timezone,
-    isp: data.org
+    screenResolution: `${window.screen.width}x${window.screen.height}`,
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    platform: navigator.platform,
+    deviceMemory: navigator.deviceMemory,
+    connection: navigator.connection?.effectiveType || 'unknown'
   };
 };
 
-const LocationChart = ({ locations = [] }) => {
+const LocationChart = () => {
   const [selectedView, setSelectedView] = useState('chart');
   const [locationData, setLocationData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const enrichLocations = async () => {
-      const enrichedLocations = await Promise.all(
-        locations.map(async (loc) => {
-          if (!loc.city || loc.city === 'Unknown') {
-            const geoData = await getLocationData();
-            return {
-              ...loc,
-              ...geoData,
-              visitTime: new Date().toLocaleTimeString(),
-              visitDate: new Date().toLocaleDateString()
-            };
-          }
-          return loc;
-        })
-      );
-      setLocationData(enrichedLocations.filter(loc => loc.city && loc.city !== 'Unknown'));
+    const initializeLocationData = async () => {
+      setIsLoading(true);
+      try {
+        const geoData = await getLocationData();
+        const deviceInfo = getDeviceInfo();
+        
+        const enrichedLocation = {
+          ...geoData,
+          ...deviceInfo,
+          visitTime: new Date().toLocaleTimeString(),
+          visitDate: new Date().toLocaleDateString(),
+          count: 1
+        };
+
+        setLocationData([enrichedLocation]);
+      } catch (error) {
+        console.error('Error fetching location data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    if (locations.length > 0) {
-      enrichLocations();
-    }
-  }, [locations]);
+    initializeLocationData();
+  }, []);
 
   const locationStats = useMemo(() => {
     return locationData.reduce((acc, loc) => {
@@ -69,17 +112,14 @@ const LocationChart = ({ locations = [] }) => {
           details: {
             state: loc.state,
             country: loc.country,
-            cities: new Set(),
-            browsers: new Set(),
-            devices: new Set(),
+            cities: new Set([loc.city]),
+            browsers: new Set([loc.userAgent?.split(' ')[0]]),
+            devices: new Set([loc.screenResolution]),
             visits: []
           }
         };
       }
-      acc[key].count++;
-      acc[key].details.cities.add(loc.city);
-      acc[key].details.browsers.add(loc.userAgent?.split(' ')[0] || 'Unknown');
-      acc[key].details.devices.add(loc.screenResolution || 'Unknown');
+      acc[key].count += loc.count;
       acc[key].details.visits.push({
         time: loc.visitTime,
         date: loc.visitDate,
@@ -141,6 +181,14 @@ const LocationChart = ({ locations = [] }) => {
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -240,12 +288,6 @@ const LocationChart = ({ locations = [] }) => {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-
-        {locationData.length === 0 && (
-          <div className="flex items-center justify-center h-[400px]">
-            <p className="text-gray-500">No visitor data available</p>
           </div>
         )}
       </motion.div>
