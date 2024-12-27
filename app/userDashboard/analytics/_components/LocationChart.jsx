@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPinIcon, GlobeAltIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, GlobeAltIcon, ClockIcon, DeviceTabletIcon } from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -22,9 +22,37 @@ ChartJS.register(
 
 const LocationChart = ({ locations = [] }) => {
   const [selectedView, setSelectedView] = useState('chart');
+  const [locationData, setLocationData] = useState([]);
+
+  useEffect(() => {
+    const enrichLocations = async () => {
+      const enrichedLocations = await Promise.all(
+        locations.map(async (loc) => {
+          if (loc.city === 'Unknown' || loc.state === 'Unknown') {
+            try {
+              const response = await fetch('https://ipapi.co/json/');
+              const data = await response.json();
+              return {
+                ...loc,
+                city: data.city || loc.city,
+                state: data.region || loc.state,
+                country: data.country_name || loc.country
+              };
+            } catch (error) {
+              return loc;
+            }
+          }
+          return loc;
+        })
+      );
+      setLocationData(enrichedLocations);
+    };
+
+    enrichLocations();
+  }, [locations]);
 
   const locationStats = useMemo(() => {
-    return locations.reduce((acc, loc) => {
+    return locationData.reduce((acc, loc) => {
       const key = `${loc.state || loc.city}, ${loc.country}`;
       if (!acc[key]) {
         acc[key] = {
@@ -51,7 +79,7 @@ const LocationChart = ({ locations = [] }) => {
       });
       return acc;
     }, {});
-  }, [locations]);
+  }, [locationData]);
 
   const chartData = useMemo(() => ({
     labels: Object.keys(locationStats),
@@ -92,7 +120,7 @@ const LocationChart = ({ locations = [] }) => {
           label: function(context) {
             const locationKey = context.label;
             const stats = locationStats[locationKey];
-            const percentage = ((context.raw / locations.length) * 100).toFixed(1);
+            const percentage = ((context.raw / locationData.length) * 100).toFixed(1);
             return [
               `📍 Location: ${locationKey}`,
               `👥 Visits: ${context.raw} (${percentage}%)`,
@@ -206,7 +234,7 @@ const LocationChart = ({ locations = [] }) => {
           </div>
         )}
 
-        {locations.length === 0 && (
+        {locationData.length === 0 && (
           <div className="flex items-center justify-center h-[400px]">
             <p className="text-gray-500">No visitor data available</p>
           </div>
