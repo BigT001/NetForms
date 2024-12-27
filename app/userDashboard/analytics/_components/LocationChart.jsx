@@ -20,6 +20,25 @@ ChartJS.register(
   LinearScale
 );
 
+const getLocationData = async () => {
+  try {
+    const response = await fetch(`http://api.ipstack.com/check?access_key=${process.env.NEXT_PUBLIC_IPSTACK_API_KEY}`);
+    const data = await response.json();
+    return {
+      city: data.city,
+      state: data.region_name,
+      country: data.country_name,
+      timezone: data.time_zone?.name,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      isp: data.connection?.isp
+    };
+  } catch (error) {
+    console.log('Location fetch error:', error);
+    return null;
+  }
+};
+
 const LocationChart = ({ locations = [] }) => {
   const [selectedView, setSelectedView] = useState('chart');
   const [locationData, setLocationData] = useState([]);
@@ -28,56 +47,24 @@ const LocationChart = ({ locations = [] }) => {
   useEffect(() => {
     const processLocations = async () => {
       setIsLoading(true);
-      const processedLocations = await Promise.all(
-        locations.map(async (loc) => {
-          try {
-            const response = await fetch('https://ipapi.co/json/', {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              },
-              cache: 'no-cache'
-            });
-            
-            if (!response.ok) {
-              throw new Error('Location service unavailable');
-            }
-            
-            const geoData = await response.json();
-            
-            return {
-              ...loc,
-              city: geoData.city || loc.city,
-              state: geoData.region || loc.state,
-              country: geoData.country_name || loc.country,
-              timezone: geoData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-              isp: geoData.org || 'Unknown',
-              visitTime: loc.visitTime || new Date().toLocaleTimeString(),
-              visitDate: loc.visitDate || new Date().toLocaleDateString(),
-              userAgent: loc.userAgent || navigator.userAgent,
-              screenResolution: loc.screenResolution || `${window.screen.width}x${window.screen.height}`,
-              language: loc.language || navigator.language
-            };
-          } catch (error) {
-            console.log('Location fetch error:', error);
-            return {
-              ...loc,
-              city: loc.city || 'Unknown',
-              state: loc.state || 'Unknown',
-              country: loc.country || 'Unknown',
-              timezone: loc.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-              visitTime: loc.visitTime || new Date().toLocaleTimeString(),
-              visitDate: loc.visitDate || new Date().toLocaleDateString(),
-              userAgent: loc.userAgent || navigator.userAgent,
-              screenResolution: loc.screenResolution || `${window.screen.width}x${window.screen.height}`,
-              language: loc.language || navigator.language
-            };
-          }
-        })
-      );
+      const geoData = await getLocationData();
       
-      setLocationData(processedLocations);
+      if (geoData) {
+        const enrichedLocations = locations.map(loc => ({
+          ...loc,
+          city: geoData.city,
+          state: geoData.state,
+          country: geoData.country,
+          timezone: geoData.timezone,
+          isp: geoData.isp,
+          visitTime: new Date().toLocaleTimeString(),
+          visitDate: new Date().toLocaleDateString(),
+          userAgent: navigator.userAgent,
+          screenResolution: `${window.screen.width}x${window.screen.height}`,
+          language: navigator.language
+        }));
+        setLocationData(enrichedLocations);
+      }
       setIsLoading(false);
     };
 
