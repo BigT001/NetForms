@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPinIcon, GlobeAltIcon, ClockIcon, DeviceTabletIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, GlobeAltIcon, ClockIcon } from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -20,6 +20,18 @@ ChartJS.register(
   LinearScale
 );
 
+const getLocationData = async () => {
+  const response = await fetch('https://ipapi.co/json/');
+  const data = await response.json();
+  return {
+    city: data.city,
+    state: data.region,
+    country: data.country_name,
+    timezone: data.timezone,
+    isp: data.org
+  };
+};
+
 const LocationChart = ({ locations = [] }) => {
   const [selectedView, setSelectedView] = useState('chart');
   const [locationData, setLocationData] = useState([]);
@@ -28,32 +40,29 @@ const LocationChart = ({ locations = [] }) => {
     const enrichLocations = async () => {
       const enrichedLocations = await Promise.all(
         locations.map(async (loc) => {
-          if (loc.city === 'Unknown' || loc.state === 'Unknown') {
-            try {
-              const response = await fetch('https://ipapi.co/json/');
-              const data = await response.json();
-              return {
-                ...loc,
-                city: data.city || loc.city,
-                state: data.region || loc.state,
-                country: data.country_name || loc.country
-              };
-            } catch (error) {
-              return loc;
-            }
+          if (!loc.city || loc.city === 'Unknown') {
+            const geoData = await getLocationData();
+            return {
+              ...loc,
+              ...geoData,
+              visitTime: new Date().toLocaleTimeString(),
+              visitDate: new Date().toLocaleDateString()
+            };
           }
           return loc;
         })
       );
-      setLocationData(enrichedLocations);
+      setLocationData(enrichedLocations.filter(loc => loc.city && loc.city !== 'Unknown'));
     };
 
-    enrichLocations();
+    if (locations.length > 0) {
+      enrichLocations();
+    }
   }, [locations]);
 
   const locationStats = useMemo(() => {
     return locationData.reduce((acc, loc) => {
-      const key = `${loc.state || loc.city}, ${loc.country}`;
+      const key = `${loc.city}, ${loc.country}`;
       if (!acc[key]) {
         acc[key] = {
           count: 0,
