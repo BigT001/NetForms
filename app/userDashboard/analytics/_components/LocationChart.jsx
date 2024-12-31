@@ -68,34 +68,27 @@ const LocationChart = ({ locations = [] }) => {
       setIsLoading(true);
       const geoData = await getLocationData();
       
-      const enrichedLocations = locations.length > 0 ? locations.map(loc => ({
+      const enrichedLocations = locations.map(loc => ({
         ...loc,
         ...geoData,
         visitTime: loc.visitTime || new Date().toLocaleTimeString(),
         visitDate: loc.visitDate || new Date().toLocaleDateString(),
         userAgent: navigator.userAgent,
         screenResolution: `${window.screen.width}x${window.screen.height}`,
-        language: navigator.language,
-        count: 1
-      })) : [{
-        ...geoData,
-        visitTime: new Date().toLocaleTimeString(),
-        visitDate: new Date().toLocaleDateString(),
-        userAgent: navigator.userAgent,
-        screenResolution: `${window.screen.width}x${window.screen.height}`,
-        language: navigator.language,
-        count: 1
-      }];
+        language: navigator.language
+      }));
 
       setLocationData(enrichedLocations);
       setIsLoading(false);
     };
 
-    processLocations();
+    if (locations.length > 0) {
+      processLocations();
+    }
   }, [locations]);
 
   const locationStats = useMemo(() => {
-    return locationData.reduce((acc, loc) => {
+    const stats = locationData.reduce((acc, loc) => {
       const key = `${loc.city}, ${loc.country}`;
       if (!acc[key]) {
         acc[key] = {
@@ -111,7 +104,7 @@ const LocationChart = ({ locations = [] }) => {
         };
       }
 
-      acc[key].count++;
+      acc[key].count = acc[key].count + 1;
       acc[key].details.cities.add(loc.city);
       acc[key].details.browsers.add(loc.userAgent?.split(' ')[0] || 'Unknown');
       acc[key].details.devices.add(loc.screenResolution || 'Unknown');
@@ -123,6 +116,8 @@ const LocationChart = ({ locations = [] }) => {
 
       return acc;
     }, {});
+
+    return stats;
   }, [locationData]);
 
   const chartData = useMemo(() => ({
