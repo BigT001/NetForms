@@ -32,31 +32,20 @@ const getLocationData = async () => {
       timezone: data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       latitude: data.latitude,
       longitude: data.longitude,
-      ip: data.ip
+      ip: data.ip,
+      deviceId: `${data.ip}-${navigator.userAgent}-${window.screen.width}x${window.screen.height}`,
+      timestamp: new Date().toISOString()
     };
   } catch (error) {
-    try {
-      const ipstackResponse = await fetch(`https://api.ipstack.com/check?access_key=${process.env.NEXT_PUBLIC_IPSTACK_API_KEY}`);
-      const ipstackData = await ipstackResponse.json();
-      
-      return {
-        city: ipstackData.city || 'Unknown',
-        state: ipstackData.region_name || 'Unknown',
-        country: ipstackData.country_name || 'Unknown',
-        timezone: ipstackData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        latitude: ipstackData.latitude,
-        longitude: ipstackData.longitude,
-        ip: ipstackData.ip
-      };
-    } catch (fallbackError) {
-      return {
-        city: 'Unknown',
-        state: 'Unknown',
-        country: 'Unknown',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        ip: 'unknown'
-      };
-    }
+    console.log('Location fetch error:', error);
+    return {
+      city: 'Unknown',
+      state: 'Unknown',
+      country: 'Unknown',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      deviceId: `unknown-${navigator.userAgent}-${window.screen.width}x${window.screen.height}`,
+      timestamp: new Date().toISOString()
+    };
   }
 };
 
@@ -68,21 +57,30 @@ const LocationChart = ({ locations = [] }) => {
   useEffect(() => {
     const processLocations = async () => {
       setIsLoading(true);
-      const geoData = await getLocationData();
       
-      const newVisit = {
-        ...geoData,
-        visitTime: new Date().toLocaleTimeString(),
-        visitDate: new Date().toLocaleDateString(),
-        userAgent: navigator.userAgent,
-        screenResolution: `${window.screen.width}x${window.screen.height}`,
-        language: navigator.language,
-        timestamp: Date.now()
+      const initialLocations = [...locations];
+      const currentLocation = await getLocationData();
+      initialLocations.push(currentLocation);
+      
+      const handleNewVisit = (event) => {
+        const newVisit = event.detail;
+        setLocationData(prevData => {
+          const updatedData = [...prevData, newVisit];
+          localStorage.setItem('locationData', JSON.stringify(updatedData));
+          return updatedData;
+        });
       };
 
-      const updatedLocations = [...locations, newVisit];
-      setLocationData(updatedLocations);
+      const savedData = localStorage.getItem('locationData');
+      const parsedData = savedData ? JSON.parse(savedData) : initialLocations;
+      
+      setLocationData(parsedData);
+      window.addEventListener('formVisit', handleNewVisit);
       setIsLoading(false);
+
+      return () => {
+        window.removeEventListener('formVisit', handleNewVisit);
+      };
     };
 
     processLocations();
@@ -103,7 +101,7 @@ const LocationChart = ({ locations = [] }) => {
             browsers: new Set(),
             devices: new Set(),
             visits: [],
-            uniqueIPs: new Set()
+            uniqueDevices: new Set()
           }
         };
       }
@@ -112,12 +110,11 @@ const LocationChart = ({ locations = [] }) => {
       stats[key].details.cities.add(loc.city);
       stats[key].details.browsers.add(loc.userAgent?.split(' ')[0] || 'Unknown');
       stats[key].details.devices.add(loc.screenResolution || 'Unknown');
-      stats[key].details.uniqueIPs.add(loc.ip);
+      stats[key].details.uniqueDevices.add(loc.deviceId);
       stats[key].details.visits.push({
-        time: loc.visitTime,
-        date: loc.visitDate,
-        timezone: loc.timezone,
-        timestamp: loc.timestamp
+        time: loc.visitTime || new Date().toLocaleTimeString(),
+        date: loc.visitDate || new Date().toLocaleDateString(),
+        timezone: loc.timezone
       });
     });
 
