@@ -49,31 +49,12 @@ const getLocationData = async () => {
     };
   } catch (error) {
     console.log('Location fetch error:', error);
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
-      
-      const { latitude, longitude } = position.coords;
-      const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
-      const data = await response.json();
-      
-      return {
-        city: data.city,
-        state: data.principalSubdivision,
-        country: data.countryName,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        latitude,
-        longitude
-      };
-    } catch (geoError) {
-      return {
-        city: 'Unknown',
-        state: 'Unknown',
-        country: 'Unknown',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      };
-    }
+    return {
+      city: 'Unknown',
+      state: 'Unknown',
+      country: 'Unknown',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
   }
 };
 
