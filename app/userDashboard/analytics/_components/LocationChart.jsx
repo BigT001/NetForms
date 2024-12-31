@@ -22,20 +22,58 @@ ChartJS.register(
 
 const getLocationData = async () => {
   try {
-    const response = await fetch(`http://api.ipstack.com/check?access_key=${process.env.NEXT_PUBLIC_IPSTACK_API_KEY}`);
+    const response = await fetch('https://ipapi.co/json/');
     const data = await response.json();
+    
+    if (!data.city) {
+      const ipstackResponse = await fetch(`https://api.ipstack.com/check?access_key=${process.env.NEXT_PUBLIC_IPSTACK_API_KEY}`);
+      const ipstackData = await ipstackResponse.json();
+      
+      return {
+        city: ipstackData.city,
+        state: ipstackData.region_name,
+        country: ipstackData.country_name,
+        timezone: ipstackData.timezone,
+        latitude: ipstackData.latitude,
+        longitude: ipstackData.longitude
+      };
+    }
+
     return {
       city: data.city,
-      state: data.region_name,
+      state: data.region,
       country: data.country_name,
-      timezone: data.time_zone?.name,
+      timezone: data.timezone,
       latitude: data.latitude,
-      longitude: data.longitude,
-      isp: data.connection?.isp
+      longitude: data.longitude
     };
   } catch (error) {
     console.log('Location fetch error:', error);
-    return null;
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+      
+      const { latitude, longitude } = position.coords;
+      const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+      const data = await response.json();
+      
+      return {
+        city: data.city,
+        state: data.principalSubdivision,
+        country: data.countryName,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        latitude,
+        longitude
+      };
+    } catch (geoError) {
+      return {
+        city: 'Unknown',
+        state: 'Unknown',
+        country: 'Unknown',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+    }
   }
 };
 
@@ -49,28 +87,30 @@ const LocationChart = ({ locations = [] }) => {
       setIsLoading(true);
       const geoData = await getLocationData();
       
-      if (geoData) {
-        const enrichedLocations = locations.map(loc => ({
-          ...loc,
-          city: geoData.city,
-          state: geoData.state,
-          country: geoData.country,
-          timezone: geoData.timezone,
-          isp: geoData.isp,
-          visitTime: new Date().toLocaleTimeString(),
-          visitDate: new Date().toLocaleDateString(),
-          userAgent: navigator.userAgent,
-          screenResolution: `${window.screen.width}x${window.screen.height}`,
-          language: navigator.language
-        }));
-        setLocationData(enrichedLocations);
-      }
+      const enrichedLocations = locations.length > 0 ? locations.map(loc => ({
+        ...loc,
+        ...geoData,
+        visitTime: loc.visitTime || new Date().toLocaleTimeString(),
+        visitDate: loc.visitDate || new Date().toLocaleDateString(),
+        userAgent: navigator.userAgent,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        language: navigator.language,
+        count: 1
+      })) : [{
+        ...geoData,
+        visitTime: new Date().toLocaleTimeString(),
+        visitDate: new Date().toLocaleDateString(),
+        userAgent: navigator.userAgent,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        language: navigator.language,
+        count: 1
+      }];
+
+      setLocationData(enrichedLocations);
       setIsLoading(false);
     };
 
-    if (locations.length > 0) {
-      processLocations();
-    }
+    processLocations();
   }, [locations]);
 
   const locationStats = useMemo(() => {
@@ -97,8 +137,7 @@ const LocationChart = ({ locations = [] }) => {
       acc[key].details.visits.push({
         time: loc.visitTime,
         date: loc.visitDate,
-        timezone: loc.timezone,
-        isp: loc.isp
+        timezone: loc.timezone
       });
 
       return acc;
