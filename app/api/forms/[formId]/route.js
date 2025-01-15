@@ -3,13 +3,17 @@ import { jsonForms } from "@/configs/schema";
 import { eq } from "drizzle-orm";
 
 export async function DELETE(req, { params }) {
+  console.log('Delete request received for formId:', params.formId);
+  
   try {
     const formId = parseInt(params.formId);
+    console.log('Parsed formId:', formId);
     
-    // Using a transaction to ensure data consistency
-    const result = await db.transaction(async (tx) => {
-      return await tx.delete(jsonForms).where(eq(jsonForms.id, formId));
-    });
+    const result = await db.delete(jsonForms)
+      .where(eq(jsonForms.id, formId))
+      .returning();
+      
+    console.log('Delete operation result:', result);
 
     return new Response(JSON.stringify({ 
       message: "Form deleted successfully",
