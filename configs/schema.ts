@@ -12,10 +12,11 @@ export const jsonForms = pgTable("jsonForms", {
 
 export const formSubmissions = pgTable('formSubmissions', {
   id: serial('id').primaryKey(),
-  formId: integer('formId').references(() => jsonForms.id).notNull(),
+  formId: integer('formId').references(() => jsonForms.id, { onDelete: 'set null' }),
   jsonResponse: text("jsonResponse").notNull(),
   createdBy: varchar("createdBy", { length: 255 }).default('anonymus'),
   createdAt: varchar("createdAt", { length: 255 }).notNull(),
   submittedAt: timestamp('submitted_at').defaultNow(),
   data: jsonb('data').notNull()
 });
+

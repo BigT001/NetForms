@@ -95,28 +95,28 @@ function FormUi({
       const submissionData = {
         formId: validFormId,
         jsonResponse: JSON.stringify(formValues),
-        createdBy: 'anonymous', // Note: 'anonymous' is spelled correctly here
+        createdBy: 'anonymous',
         createdAt: currentDate,
         data: sql`${JSON.stringify(formValues)}::jsonb`,
       };
       console.log("Submitting form data:", submissionData);
   
-      // Log the SQL query (if using Drizzle ORM)
+      // Log SQL query using Drizzle ORM
       const query = db.insert(formSubmissions).values(submissionData).toSQL();
       console.log("SQL Query:", query.sql);
       console.log("SQL Parameters:", query.params);
   
       const result = await db.insert(formSubmissions).values(submissionData);
-      console.log("Form submission result:", result);
-      toast.success("Form submitted successfully!");
-      setFormValues({});
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error(`Error submitting form: ${error.message}`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    console.log("Form submission result:", result);
+    toast.success("Form submitted successfully!");  // This line shows the success message
+    setFormValues({});
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    toast.error(`Error submitting form: ${error.message}`);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const getFieldValue = (field, key) => {
     return (

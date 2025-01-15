@@ -20,16 +20,23 @@ export default function FormList() {
 
   const handleFormDelete = async (deletedFormId) => {
     try {
-      // Attempt to delete from the database
-      await db.delete(jsonForms).where(eq(jsonForms.id, deletedFormId))
-      // If deletion is successful, update the state
-      setFormList(prevList => prevList.filter(form => form.id !== deletedFormId))
+      const response = await fetch(`/api/forms/${deletedFormId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete form');
+      }
+      
+      setFormList(prevList => prevList.filter(form => form.id !== deletedFormId));
     } catch (error) {
-      console.error("Error deleting form:", error)
-      // If there's an error, refresh the form list
-      GetFormList()
+      console.error("Error deleting form:", error);
+      GetFormList();
     }
   }
+  
+  
+  
 
   const GetFormList = async () => {
     if (!user) return
