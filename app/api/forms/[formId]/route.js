@@ -1,19 +1,20 @@
 import { db } from "@/configs";
-import { jsonForms, formSubmissions } from "@/configs/schema";
+import { jsonForms } from "@/configs/schema";
 import { eq } from "drizzle-orm";
 
 export async function DELETE(req, { params }) {
   try {
     const formId = parseInt(params.formId);
     
-    console.log('Starting form deletion process for formId:', formId);
-    
-    // Delete the form
-    const result = await db.delete(jsonForms).where(eq(jsonForms.id, formId));
-    
-    console.log('Deletion result:', result);
+    // Using a transaction to ensure data consistency
+    const result = await db.transaction(async (tx) => {
+      return await tx.delete(jsonForms).where(eq(jsonForms.id, formId));
+    });
 
-    return new Response(JSON.stringify({ message: "Form deleted successfully" }), {
+    return new Response(JSON.stringify({ 
+      message: "Form deleted successfully",
+      result 
+    }), {
       status: 200,
     });
   }
