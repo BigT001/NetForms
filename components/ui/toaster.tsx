@@ -1,35 +1,32 @@
-// "use client"
+"use client"
 
-// import { useToast } from "@/components/hooks/use-toast"
-// import {
-//   Toast,
-//   ToastClose,
-//   ToastDescription,
-//   ToastProvider,
-//   ToastTitle,
-//   ToastViewport,
-// } from "@/components/ui/toast"
+import { useTheme } from "next-themes"
+import { Toaster as Sonner } from "sonner"
 
-// export function Toaster() {
-//   const { toasts } = useToast()
+export function Toaster() {
+  const { theme } = useTheme()
 
-//   return (
-//     <ToastProvider>
-//       {toasts.map(function ({ id, title, description, action, ...props }) {
-//         return (
-//           <Toast key={id} {...props}>
-//             <div className="grid gap-1">
-//               {title && <ToastTitle>{title}</ToastTitle>}
-//               {description && (
-//                 <ToastDescription>{description}</ToastDescription>
-//               )}
-//             </div>
-//             {action}
-//             <ToastClose />
-//           </Toast>
-//         )
-//       })}
-//       <ToastViewport />
-//     </ToastProvider>
-//   )
-// }
+  return (
+    <Sonner
+      theme={theme as "light" | "dark" | "system"}
+      className="toaster group"
+      position="top-right"
+      expand={true}
+      richColors
+      duration={4000}
+      toastOptions={{
+        style: {
+          background: "transparent",
+          border: "none",
+          padding: "0",
+          boxShadow: "none",
+        },
+        classNames: {
+          toast: "group flex items-center gap-3",
+          title: "font-semibold text-base",
+          description: "text-sm text-muted-foreground",
+        },
+      }}
+    />
+  )
+}

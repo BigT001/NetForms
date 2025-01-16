@@ -10,7 +10,8 @@ import { db } from "@/configs";
 import { formSubmissions, jsonForms } from "@/configs/schema";
 import { sql, eq } from "drizzle-orm";
 import FieldEdit from "./FieldEdit";
-import { toast } from 'react-hot-toast';
+import { toast } from "sonner"
+
 
 function FormUi({
   jsonForm,
@@ -69,9 +70,10 @@ function FormUi({
       console.log("Theme updated in database");
     } catch (error) {
       console.error("Error updating theme in database:", error);
-      toast.error("Failed to update theme in database");
+      toast.error("Failed to update theme in database"); // Updated line
     }
   };
+  
 
   if (!jsonForm || !jsonForm.response || jsonForm.response.length === 0) {
     return <div>Loading...😃</div>;
@@ -82,41 +84,55 @@ function FormUi({
   if (!formData || !Array.isArray(formData.fields)) {
     return <div>Invalid form data structure</div>;
   }
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      console.log("handleSubmit - validFormId:", validFormId);
-      if (validFormId === null || validFormId <= 0) {
-        throw new Error("Invalid form ID");
-      }
+
+
   
-      const currentDate = new Date().toISOString();
-      const submissionData = {
-        formId: validFormId,
-        jsonResponse: JSON.stringify(formValues),
-        createdBy: 'anonymous',
-        createdAt: currentDate,
-        data: sql`${JSON.stringify(formValues)}::jsonb`,
-      };
-      console.log("Submitting form data:", submissionData);
-  
-      // Log SQL query using Drizzle ORM
-      const query = db.insert(formSubmissions).values(submissionData).toSQL();
-      console.log("SQL Query:", query.sql);
-      console.log("SQL Parameters:", query.params);
-  
-      const result = await db.insert(formSubmissions).values(submissionData);
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+
+  try {
+    console.log("handleSubmit - validFormId:", validFormId);
+    if (validFormId === null || validFormId <= 0) {
+      throw new Error("Invalid form ID");
+    }
+
+    const currentDate = new Date().toISOString();
+    const submissionData = {
+      formId: validFormId,
+      jsonResponse: JSON.stringify(formValues),
+      createdBy: 'anonymous',
+      createdAt: currentDate,
+      data: sql`${JSON.stringify(formValues)}::jsonb`,
+    };
+    console.log("Submitting form data:", submissionData);
+
+    // Log SQL query using Drizzle ORM
+    const query = db.insert(formSubmissions).values(submissionData).toSQL();
+    console.log("SQL Query:", query.sql);
+    console.log("SQL Parameters:", query.params);
+
+    const result = await db.insert(formSubmissions).values(submissionData);
     console.log("Form submission result:", result);
-    toast.success("Form submitted successfully!");  // This line shows the success message
+    
+    toast("Form submitted successfully!", {
+      icon: "😃",
+    });
+    
     setFormValues({});
   } catch (error) {
     console.error("Error submitting form:", error);
-    toast.error(`Error submitting form: ${error.message}`);
+    toast.error(`Error submitting form: ${error.message}`, {
+      icon: "❌",
+    });
   } finally {
     setIsSubmitting(false);
   }
 };
+
+
+  
 
   const getFieldValue = (field, key) => {
     return (
