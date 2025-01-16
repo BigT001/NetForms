@@ -22,14 +22,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
           border: 'none',
           boxShadow: 'none',
           padding: 0,
+          color: '#000000', // This ensures dark text on all devices
         },
         classNames: {
-          toast: "font text-md",
-          success: "text-primary",
-          error: "text-red-600",
-          loading: "text-blue-600",
-          actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          toast: "font-semibold text-lg text-black dark:text-white", // Added explicit text colors
+          success: "text-green-600 dark:text-green-400",
+          error: "text-red-600 dark:text-red-400",
+          loading: "text-blue-600 dark:text-blue-400",
         },
       }}
       {...props}
