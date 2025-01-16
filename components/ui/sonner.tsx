@@ -25,7 +25,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         },
         classNames: {
           toast: "font text-md",
-          success: "text-green-600",
+          success: "text-primary",
           error: "text-red-600",
           loading: "text-blue-600",
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",

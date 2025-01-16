@@ -86,52 +86,61 @@ function FormUi({
   }
 
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
   
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-
-  try {
-    console.log("handleSubmit - validFormId:", validFormId);
-    if (validFormId === null || validFormId <= 0) {
-      throw new Error("Invalid form ID");
+    try {
+      console.log("handleSubmit - validFormId:", validFormId);
+      if (validFormId === null || validFormId <= 0) {
+        throw new Error("Invalid form ID");
+      }
+  
+      const currentDate = new Date().toISOString();
+      const submissionData = {
+        formId: validFormId,
+        jsonResponse: JSON.stringify(formValues),
+        createdBy: 'anonymous',
+        createdAt: currentDate,
+        data: sql`${JSON.stringify(formValues)}::jsonb`,
+      };
+      console.log("Submitting form data:", submissionData);
+  
+      const query = db.insert(formSubmissions).values(submissionData).toSQL();
+      console.log("SQL Query:", query.sql);
+      console.log("SQL Parameters:", query.params);
+  
+      const result = await db.insert(formSubmissions).values(submissionData);
+      console.log("Form submission result:", result);
+      
+      toast("Form submitted successfully!", {
+        icon: "✨",
+        style: {
+          minWidth: '250px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+        },
+      });
+      
+      setFormValues({});
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error(`Error submitting form: ${error.message}`, {
+        icon: "❌",
+        style: {
+          minWidth: '250px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+        },
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const currentDate = new Date().toISOString();
-    const submissionData = {
-      formId: validFormId,
-      jsonResponse: JSON.stringify(formValues),
-      createdBy: 'anonymous',
-      createdAt: currentDate,
-      data: sql`${JSON.stringify(formValues)}::jsonb`,
-    };
-    console.log("Submitting form data:", submissionData);
-
-    // Log SQL query using Drizzle ORM
-    const query = db.insert(formSubmissions).values(submissionData).toSQL();
-    console.log("SQL Query:", query.sql);
-    console.log("SQL Parameters:", query.params);
-
-    const result = await db.insert(formSubmissions).values(submissionData);
-    console.log("Form submission result:", result);
-    
-    toast("Form submitted successfully!", {
-      icon: "😃",
-    });
-    
-    setFormValues({});
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    toast.error(`Error submitting form: ${error.message}`, {
-      icon: "❌",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-
+  };
   
 
   const getFieldValue = (field, key) => {
