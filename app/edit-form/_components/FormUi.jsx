@@ -74,7 +74,6 @@ function FormUi({
     }
   };
   
-
   if (!jsonForm || !jsonForm.response || jsonForm.response.length === 0) {
     return <div>Loading...😃</div>;
   }
@@ -88,30 +87,39 @@ function FormUi({
   
   useEffect(() => {
     const recordVisit = async () => {
+      // Check if this visit was already recorded in this session
+      const sessionKey = `form_visit_${validFormId}`;
+      if (sessionStorage.getItem(sessionKey)) {
+        return;
+      }
+  
       try {
         const visitData = {
           formId: validFormId,
-          isVisit: true,
-          jsonResponse: JSON.stringify({}),
+          isVisit: true, // Make sure this is explicitly set to true
+          jsonResponse: JSON.stringify({
+            timestamp: new Date().toISOString(),
+            type: 'visit'
+          }),
           createdAt: new Date().toISOString(),
           createdBy: 'anonymous',
-          data: sql`'{}'::jsonb`,
+          data: sql`'{"type": "visit"}'::jsonb`,
         };
   
-        const result = await db.insert(formSubmissions).values(visitData);
-        console.log("Visit recorded successfully:", result);
+        await db.insert(formSubmissions).values(visitData);
+        // Mark this visit as recorded in this session
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("Visit recorded successfully");
       } catch (error) {
         console.error("Error recording visit:", error);
       }
     };
   
-  
-    if (validFormId) {
+    if (validFormId && typeof window !== 'undefined') {
       recordVisit();
     }
-  }, []);
+  }, [validFormId]); // Only depend on validFormId
   
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();

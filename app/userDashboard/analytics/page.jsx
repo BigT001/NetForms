@@ -71,39 +71,32 @@ const Dashboard = () => {
         .select()
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, form.id));
-
-      // Get visits from formSubmissions where isVisit is true
-      const visits = submissions.filter((s) => s.isVisit);
-      const totalVisits = visits.length;
-      const filled = submissions.filter((s) => !s.isVisit).length;
-      const conversionRate = totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : "0";
-
-      // Map location data from submissions
-      const locationData = visits.map((visit) => {
-        let locationInfo;
-        try {
-          locationInfo = JSON.parse(visit.jsonResponse);
-        } catch (e) {
-          locationInfo = {};
-        }
-        return {
-          city: locationInfo.city || 'Unknown',
-          state: locationInfo.state || 'Unknown',
-          country: locationInfo.country || 'Unknown',
-          timestamp: visit.createdAt
-        };
-      });
-
+  
+      // Correctly count visits where isVisit is true
+      const visits = submissions.filter(s => s.isVisit === true).length;
+      // Count form submissions where isVisit is false
+      const filled = submissions.filter(s => !s.isVisit).length;
+      const conversionRate = visits > 0 ? ((filled / visits) * 100).toFixed(2) : "0";
+  
       setAnalytics({
-        visits: totalVisits,
+        visits: visits,
         filled: filled,
         conversionRate: conversionRate,
-        locations: locationData
+        locations: submissions
+          .filter(s => s.isVisit)
+          .map(visit => {
+            try {
+              return JSON.parse(visit.jsonResponse);
+            } catch {
+              return {};
+            }
+          })
       });
     } catch (error) {
       console.error("Error fetching analytics:", error);
     }
   };
+  
 
 
   return (
