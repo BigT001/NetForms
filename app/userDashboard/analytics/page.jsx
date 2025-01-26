@@ -72,27 +72,39 @@ const Dashboard = () => {
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, form.id));
 
-      const visitKey = `form_${form.id}_visits`;
-      const visits = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(visitKey) || "[]") : [];
+      // Get visits from formSubmissions where isVisit is true
+      const visits = submissions.filter((s) => s.isVisit);
       const totalVisits = visits.length;
       const filled = submissions.filter((s) => !s.isVisit).length;
       const conversionRate = totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : "0";
+
+      // Map location data from submissions
+      const locationData = visits.map((visit) => {
+        let locationInfo;
+        try {
+          locationInfo = JSON.parse(visit.jsonResponse);
+        } catch (e) {
+          locationInfo = {};
+        }
+        return {
+          city: locationInfo.city || 'Unknown',
+          state: locationInfo.state || 'Unknown',
+          country: locationInfo.country || 'Unknown',
+          timestamp: visit.createdAt
+        };
+      });
 
       setAnalytics({
         visits: totalVisits,
         filled: filled,
         conversionRate: conversionRate,
-        locations: visits.map((visit) => ({
-          city: visit.city || 'Unknown',
-          state: visit.state || 'Unknown',
-          country: visit.country || 'Unknown',
-          timestamp: visit.timestamp
-        }))
+        locations: locationData
       });
     } catch (error) {
       console.error("Error fetching analytics:", error);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
@@ -203,6 +215,7 @@ const Dashboard = () => {
                       {analytics.visits}
                     </p>
                   </div>
+
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <h3 className="text-gray-500 text-sm font-medium">
                       Forms Filled
@@ -211,6 +224,7 @@ const Dashboard = () => {
                       {analytics.filled}
                     </p>
                   </div>
+
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <h3 className="text-gray-500 text-sm font-medium">
                       Conversion Rate

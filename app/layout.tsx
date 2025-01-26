@@ -26,7 +26,7 @@ export default function RootLayout({
         <html lang="en" data-theme="light">
           <body className={inter.className}>
             <Header />
-            <Toaster position="top-center" />
+            <Toaster position="m" />
             {children}
             <Analytics />
           </body>
