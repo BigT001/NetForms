@@ -70,7 +70,7 @@ function FormUi({
       console.log("Theme updated in database");
     } catch (error) {
       console.error("Error updating theme in database:", error);
-      toast.error("Failed to update theme in database"); // Updated line
+      toast.error("Failed to update theme in database")
     }
   };
   
@@ -92,27 +92,24 @@ function FormUi({
         const visitData = {
           formId: validFormId,
           isVisit: true,
-          jsonResponse: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            type: 'visit'  // Adding a type identifier
-          }),
+          jsonResponse: JSON.stringify({}),
           createdAt: new Date().toISOString(),
           createdBy: 'anonymous',
-          data: sql`${JSON.stringify({ type: 'visit' })}::jsonb`, // Adding the data field
+          data: sql`'{}'::jsonb`,
         };
   
         const result = await db.insert(formSubmissions).values(visitData);
-        console.log("Visit recorded:", result);
+        console.log("Visit recorded successfully:", result);
       } catch (error) {
         console.error("Error recording visit:", error);
       }
     };
   
-    // Only record visit if we have a valid form ID and we're in a browser environment
-    if (validFormId && typeof window !== 'undefined') {
+  
+    if (validFormId) {
       recordVisit();
     }
-  }, [validFormId]); // Dependencies array includes validFormId
+  }, []);
   
 
 
