@@ -93,8 +93,7 @@ function FormUi({
           isVisit: true,
           jsonResponse: JSON.stringify({}),
           createdAt: new Date().toISOString(),
-          createdBy: 'anonymous',
-          data: null // Remove the SQL template literal
+          createdBy: 'anonymous'
         };
   
         await db.insert(formSubmissions).values(visitData);
@@ -103,11 +102,10 @@ function FormUi({
       }
     };
   
-    // Record visit only on initial render
     if (validFormId) {
       recordVisit();
     }
-  }, []); // Empty dependency array for single execution
+  }, [validFormId]);  
   
   
 
@@ -123,12 +121,12 @@ function FormUi({
       const currentDate = new Date().toISOString();
       const submissionData = {
         formId: validFormId,
-        isVisit: false, // Explicitly mark as not a visit
+        isVisit: false,
         jsonResponse: JSON.stringify(formValues),
         createdBy: 'anonymous',
-        createdAt: currentDate,
-        data: null // Remove the SQL template literal
+        createdAt: currentDate
       };
+      
       console.log("Submitting form data:", submissionData);
   
       const query = db.insert(formSubmissions).values(submissionData).toSQL();

@@ -64,22 +64,23 @@ const Dashboard = () => {
     }
   };
 
+
   const handleFormSelect = async (form) => {
     setSelectedForm(form);
     try {
       const submissions = await db
-  .select()
-  .from(formSubmissions)
-  .where(eq(formSubmissions.formId, form.id));
-
-const visits = submissions.filter(s => s.isVisit === true).length;
-const filled = submissions.filter(s => s.isVisit === false).length;
-
+        .select()
+        .from(formSubmissions)
+        .where(eq(formSubmissions.formId, form.id));
+  
+      const visits = submissions.filter(sub => sub.isVisit === true).length;
+      const filled = submissions.filter(sub => sub.isVisit === false).length;
+      const conversionRate = visits > 0 ? ((filled / visits) * 100).toFixed(2) : "0";
   
       setAnalytics({
-        visits: visits,
-        filled: filled,
-        conversionRate: conversionRate,
+        visits,
+        filled,
+        conversionRate,
         locations: submissions
           .filter(s => s.isVisit)
           .map(visit => {
