@@ -85,6 +85,7 @@ function FormUi({
     return <div>Invalid form data structure</div>;
   }
 
+  
   useEffect(() => {
     const recordVisit = async () => {
       try {
@@ -93,22 +94,25 @@ function FormUi({
           isVisit: true,
           jsonResponse: JSON.stringify({
             timestamp: new Date().toISOString(),
+            type: 'visit'  // Adding a type identifier
           }),
           createdAt: new Date().toISOString(),
-          createdBy: 'anonymous'
+          createdBy: 'anonymous',
+          data: sql`${JSON.stringify({ type: 'visit' })}::jsonb`, // Adding the data field
         };
   
         const result = await db.insert(formSubmissions).values(visitData);
-        console.log("Visit recorded successfully");
+        console.log("Visit recorded:", result);
       } catch (error) {
         console.error("Error recording visit:", error);
       }
     };
   
-    if (validFormId) {
+    // Only record visit if we have a valid form ID and we're in a browser environment
+    if (validFormId && typeof window !== 'undefined') {
       recordVisit();
     }
-  }, [validFormId]);
+  }, [validFormId]); // Dependencies array includes validFormId
   
 
 
