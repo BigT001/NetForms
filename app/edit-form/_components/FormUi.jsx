@@ -70,10 +70,11 @@ function FormUi({
       console.log("Theme updated in database");
     } catch (error) {
       console.error("Error updating theme in database:", error);
-      toast.error("Failed to update theme in database")
+      toast.error("Failed to update theme in database"); // Updated line
     }
   };
   
+
   if (!jsonForm || !jsonForm.response || jsonForm.response.length === 0) {
     return <div>Loading...😃</div>;
   }
@@ -84,86 +85,53 @@ function FormUi({
     return <div>Invalid form data structure</div>;
   }
 
-  
-  useEffect(() => {
-    const recordVisit = async () => {
-      try {
-        const visitData = {
-          formId: validFormId,
-          isVisit: true,
-          jsonResponse: JSON.stringify({}),
-          createdAt: new Date().toISOString(),
-          createdBy: 'anonymous'
-        };
-  
-        await db.insert(formSubmissions).values(visitData);
-      } catch (error) {
-        console.error("Error recording visit:", error);
-      }
-    };
-  
-    if (validFormId) {
-      recordVisit();
-    }
-  }, [validFormId]);  
-  
+
   
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      console.log("handleSubmit - validFormId:", validFormId);
-      if (validFormId === null || validFormId <= 0) {
-        throw new Error("Invalid form ID");
-      }
-  
-      const currentDate = new Date().toISOString();
-      const submissionData = {
-        formId: validFormId,
-        isVisit: false,
-        jsonResponse: JSON.stringify(formValues),
-        createdBy: 'anonymous',
-        createdAt: currentDate
-      };
-      
-      console.log("Submitting form data:", submissionData);
-  
-      const query = db.insert(formSubmissions).values(submissionData).toSQL();
-      console.log("SQL Query:", query.sql);
-      console.log("SQL Parameters:", query.params);
-  
-      const result = await db.insert(formSubmissions).values(submissionData);
-      console.log("Form submission result:", result);
-      
-      toast("Form submitted successfully!", {
-        icon: "✨",
-        style: {
-          minWidth: '250px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-        },
-      });
-      
-      setFormValues({});
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error(`Error submitting form: ${error.message}`, {
-        icon: "❌",
-        style: {
-          minWidth: '250px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-        },
-      });
-    } finally {
-      setIsSubmitting(false);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+
+  try {
+    console.log("handleSubmit - validFormId:", validFormId);
+    if (validFormId === null || validFormId <= 0) {
+      throw new Error("Invalid form ID");
     }
-  };
+
+    const currentDate = new Date().toISOString();
+    const submissionData = {
+      formId: validFormId,
+      jsonResponse: JSON.stringify(formValues),
+      createdBy: 'anonymous',
+      createdAt: currentDate,
+      data: sql`${JSON.stringify(formValues)}::jsonb`,
+    };
+    console.log("Submitting form data:", submissionData);
+
+    // Log SQL query using Drizzle ORM
+    const query = db.insert(formSubmissions).values(submissionData).toSQL();
+    console.log("SQL Query:", query.sql);
+    console.log("SQL Parameters:", query.params);
+
+    const result = await db.insert(formSubmissions).values(submissionData);
+    console.log("Form submission result:", result);
+    
+    toast("Form submitted successfully!", {
+      icon: "😃",
+    });
+    
+    setFormValues({});
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    toast.error(`Error submitting form: ${error.message}`, {
+      icon: "❌",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
   
 
   const getFieldValue = (field, key) => {

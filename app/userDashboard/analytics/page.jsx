@@ -64,7 +64,6 @@ const Dashboard = () => {
     }
   };
 
-
   const handleFormSelect = async (form) => {
     setSelectedForm(form);
     try {
@@ -72,31 +71,28 @@ const Dashboard = () => {
         .select()
         .from(formSubmissions)
         .where(eq(formSubmissions.formId, form.id));
-  
-      const visits = submissions.filter(sub => sub.isVisit === true).length;
-      const filled = submissions.filter(sub => sub.isVisit === false).length;
-      const conversionRate = visits > 0 ? ((filled / visits) * 100).toFixed(2) : "0";
-  
+
+      const visitKey = `form_${form.id}_visits`;
+      const visits = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(visitKey) || "[]") : [];
+      const totalVisits = visits.length;
+      const filled = submissions.filter((s) => !s.isVisit).length;
+      const conversionRate = totalVisits > 0 ? ((filled / totalVisits) * 100).toFixed(2) : "0";
+
       setAnalytics({
-        visits,
-        filled,
-        conversionRate,
-        locations: submissions
-          .filter(s => s.isVisit)
-          .map(visit => {
-            try {
-              return JSON.parse(visit.jsonResponse);
-            } catch {
-              return {};
-            }
-          })
+        visits: totalVisits,
+        filled: filled,
+        conversionRate: conversionRate,
+        locations: visits.map((visit) => ({
+          city: visit.city || 'Unknown',
+          state: visit.state || 'Unknown',
+          country: visit.country || 'Unknown',
+          timestamp: visit.timestamp
+        }))
       });
     } catch (error) {
       console.error("Error fetching analytics:", error);
     }
   };
-  
-
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
@@ -207,7 +203,6 @@ const Dashboard = () => {
                       {analytics.visits}
                     </p>
                   </div>
-
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <h3 className="text-gray-500 text-sm font-medium">
                       Forms Filled
@@ -216,7 +211,6 @@ const Dashboard = () => {
                       {analytics.filled}
                     </p>
                   </div>
-
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                     <h3 className="text-gray-500 text-sm font-medium">
                       Conversion Rate
