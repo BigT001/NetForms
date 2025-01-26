@@ -87,44 +87,33 @@ function FormUi({
   
   useEffect(() => {
     const recordVisit = async () => {
-      // Check if this visit was already recorded in this session
-      const sessionKey = `form_visit_${validFormId}`;
-      if (sessionStorage.getItem(sessionKey)) {
-        return;
-      }
-  
       try {
         const visitData = {
           formId: validFormId,
-          isVisit: true, // Make sure this is explicitly set to true
-          jsonResponse: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            type: 'visit'
-          }),
+          isVisit: true,
+          jsonResponse: JSON.stringify({}),
           createdAt: new Date().toISOString(),
           createdBy: 'anonymous',
-          data: sql`'{"type": "visit"}'::jsonb`,
+          data: null // Remove the SQL template literal
         };
   
         await db.insert(formSubmissions).values(visitData);
-        // Mark this visit as recorded in this session
-        sessionStorage.setItem(sessionKey, 'true');
-        console.log("Visit recorded successfully");
       } catch (error) {
         console.error("Error recording visit:", error);
       }
     };
   
-    if (validFormId && typeof window !== 'undefined') {
+    // Record visit only on initial render
+    if (validFormId) {
       recordVisit();
     }
-  }, [validFormId]); // Only depend on validFormId
+  }, []); // Empty dependency array for single execution
+  
   
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-  
     try {
       console.log("handleSubmit - validFormId:", validFormId);
       if (validFormId === null || validFormId <= 0) {
@@ -134,10 +123,11 @@ function FormUi({
       const currentDate = new Date().toISOString();
       const submissionData = {
         formId: validFormId,
+        isVisit: false, // Explicitly mark as not a visit
         jsonResponse: JSON.stringify(formValues),
         createdBy: 'anonymous',
         createdAt: currentDate,
-        data: sql`${JSON.stringify(formValues)}::jsonb`,
+        data: null // Remove the SQL template literal
       };
       console.log("Submitting form data:", submissionData);
   

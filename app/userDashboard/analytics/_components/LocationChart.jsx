@@ -200,7 +200,7 @@ const LocationChart = ({ locations = [] }) => {
                 selectedView === 'chart'
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              }`} 
             >
               Chart View
             </button>

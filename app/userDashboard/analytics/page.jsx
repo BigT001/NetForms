@@ -68,15 +68,13 @@ const Dashboard = () => {
     setSelectedForm(form);
     try {
       const submissions = await db
-        .select()
-        .from(formSubmissions)
-        .where(eq(formSubmissions.formId, form.id));
-  
-      // Correctly count visits where isVisit is true
-      const visits = submissions.filter(s => s.isVisit === true).length;
-      // Count form submissions where isVisit is false
-      const filled = submissions.filter(s => !s.isVisit).length;
-      const conversionRate = visits > 0 ? ((filled / visits) * 100).toFixed(2) : "0";
+  .select()
+  .from(formSubmissions)
+  .where(eq(formSubmissions.formId, form.id));
+
+const visits = submissions.filter(s => s.isVisit === true).length;
+const filled = submissions.filter(s => s.isVisit === false).length;
+
   
       setAnalytics({
         visits: visits,
